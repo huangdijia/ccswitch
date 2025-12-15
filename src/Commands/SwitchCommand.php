@@ -21,6 +21,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 
 #[AsCommand(
     name: 'switch',
@@ -34,7 +35,7 @@ class SwitchCommand extends Command
             ->setHelp('This command allows you to set the active Claude API profile')
             ->addArgument(
                 'profile',
-                InputArgument::REQUIRED,
+                InputArgument::OPTIONAL,
                 'The name of the profile to set as active'
             )
             ->addOption(
@@ -61,6 +62,49 @@ class SwitchCommand extends Command
         try {
             $profiles = new Profiles($profilesPath);
 
+            // If no profile provided, show interactive selection
+            if ($profileName === null) {
+                $allProfiles = $profiles->data['profiles'] ?? [];
+                if (empty($allProfiles)) {
+                    $output->writeln('<comment>No profiles configured.</comment>');
+                    return Command::SUCCESS;
+                }
+
+                $profileNames = array_keys($allProfiles);
+
+                // Create choice question with profile details
+                $question = new ChoiceQuestion(
+                    'Please select a profile to switch to:',
+                    $profileNames,
+                    0
+                );
+                $question->setErrorMessage('Profile %s is invalid.');
+
+                // Create formatted profile list for display
+                $profileList = [];
+                foreach ($allProfiles as $name => $env) {
+                    $details = [];
+                    if (isset($env['ANTHROPIC_BASE_URL'])) {
+                        $details[] = "URL: {$env['ANTHROPIC_BASE_URL']}";
+                    }
+                    if (isset($env['ANTHROPIC_MODEL'])) {
+                        $details[] = "Model: {$env['ANTHROPIC_MODEL']}";
+                    }
+                    if (isset($env['ANTHROPIC_SMALL_FAST_MODEL'])) {
+                        $details[] = "Fast Model: {$env['ANTHROPIC_SMALL_FAST_MODEL']}";
+                    }
+                    $profileList[$name] = $name . (empty($details) ? '' : ' (' . implode(', ', $details) . ')');
+                }
+
+                // Override the choice display to show details
+                $question->setAutocompleterValues($profileList);
+
+                /** @var \Symfony\Component\Console\Helper\QuestionHelper $helper */
+                $helper = $this->getHelper('question');
+                $profileName = $helper->ask($input, $output, $question);
+                $output->writeln('');
+            }
+
             if (! $profiles->has($profileName)) {
                 $output->writeln("<error>Error: Profile '{$profileName}' not found.</error>");
                 $output->writeln('<info>Available profiles:</info>');
@@ -85,7 +129,7 @@ class SwitchCommand extends Command
                     unset($currentSettings->model);
                 }
             } else {
-                $currentSettings->model = $env['ANTHROPIC_MODEL'] ?? null;
+                $currentSettings->model = $env['ANTHROPIC_MODEL'];
             }
 
             // Write settings

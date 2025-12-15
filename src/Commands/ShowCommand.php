@@ -83,7 +83,7 @@ class ShowCommand extends Command
 
                 if (isset($currentSettings->env) && ! empty((array) $currentSettings->env)) {
                     $output->writeln("\n<comment>Environment Variables:</comment>");
-                    foreach ($currentSettings->env as $key => $value) {
+                    foreach ((array) $currentSettings->env as $key => $value) {
                         // Hide sensitive information
                         if (stripos($key, 'TOKEN') !== false || stripos($key, 'KEY') !== false) {
                             $value = $this->maskSensitiveValue((string) $value);
