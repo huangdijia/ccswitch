@@ -40,10 +40,16 @@ uninstall: ## Uninstall the binary and config files
 
 clean: ## Remove build artifacts
 	@rm -f $(BINARY_NAME)
+	@rm -f coverage.out coverage.html
 	@echo "Clean complete!"
 
 test: ## Run tests
 	$(GO) test -v ./...
+
+test-coverage: ## Run tests with coverage
+	$(GO) test -v -race -coverprofile=coverage.out ./...
+	$(GO) tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
 
 fmt: ## Format the code
 	$(GO) fmt ./...

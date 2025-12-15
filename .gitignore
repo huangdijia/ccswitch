@@ -12,3 +12,5 @@ ccswitch
 *.out
 go.work
 go.work.sum
+coverage.out
+coverage.html
