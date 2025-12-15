@@ -21,8 +21,8 @@ func setupTestEnvironment(t *testing.T) (string, string, string) {
 		"default":      "test-profile",
 		"profiles": map[string]interface{}{
 			"test-profile": map[string]string{
-				"ANTHROPIC_BASE_URL":        "https://api.test.com",
-				"ANTHROPIC_MODEL":           "test-model",
+				"ANTHROPIC_BASE_URL":         "https://api.test.com",
+				"ANTHROPIC_MODEL":            "test-model",
 				"ANTHROPIC_SMALL_FAST_MODEL": "fast-model",
 			},
 			"another-profile": map[string]string{

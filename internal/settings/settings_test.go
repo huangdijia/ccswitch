@@ -30,7 +30,7 @@ func TestNew(t *testing.T) {
 
 func TestNewWithTildeExpansion(t *testing.T) {
 	tmpDir := t.TempDir()
-	
+
 	// Set HOME to temp directory for this test
 	originalHome := os.Getenv("HOME")
 	os.Setenv("HOME", tmpDir)
