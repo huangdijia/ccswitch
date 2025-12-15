@@ -176,6 +176,14 @@ Run tests:
 make test
 ```
 
+Run tests with coverage:
+
+```bash
+make test-coverage
+```
+
+This will generate a coverage report in `coverage.html`.
+
 ### Code Formatting
 
 Format the code:
@@ -197,6 +205,21 @@ Run `make help` to see all available targets:
 ```bash
 make help
 ```
+
+## Continuous Integration
+
+The project uses GitHub Actions for CI/CD:
+
+- **Test Workflow**: Runs on every push and pull request
+  - Executes all unit tests with race detection
+  - Generates coverage reports
+  - Builds the binary and verifies it
+
+- **Release Workflow**: Runs on version tags (e.g., `v1.0.0`)
+  - Runs all tests
+  - Builds binaries for multiple platforms (Linux, macOS, Windows)
+  - Supports multiple architectures (amd64, arm64, arm)
+  - Creates GitHub releases with binaries and checksums
 
 ## Requirements
 
