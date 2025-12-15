@@ -17,6 +17,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'init',
@@ -36,6 +37,12 @@ class InitCommand extends Command
                 getenv('HOME') . '/.ccswitch/ccs.json'
             )
             ->addOption(
+                'full',
+                null,
+                InputOption::VALUE_NONE,
+                'Use full configuration with all available providers'
+            )
+            ->addOption(
                 'force',
                 'f',
                 InputOption::VALUE_NONE,
@@ -47,11 +54,13 @@ class InitCommand extends Command
     {
         $profilesPath = $input->getOption('profiles');
         $force = $input->getOption('force');
+        $full = $input->getOption('full');
         $configDir = dirname($profilesPath);
+        $io = new SymfonyStyle($input, $output);
 
         // Check if configuration already exists
         if (file_exists($profilesPath) && ! $force) {
-            $output->writeln('<error>Configuration file already exists. Use --force to overwrite.</error>');
+            $io->error('Configuration file already exists. Use --force to overwrite.');
             return Command::FAILURE;
         }
 
@@ -61,40 +70,37 @@ class InitCommand extends Command
                 if (! mkdir($configDir, 0755, true)) {
                     throw new Exception("Failed to create directory: {$configDir}");
                 }
-                $output->writeln("<info>Created directory: {$configDir}</info>");
+                $io->success("Created directory: {$configDir}");
             }
 
-            // Default configuration template
-            $defaultConfig = [
-                'default' => 'default',
-                'settingsPath' => getenv('HOME') . '/.config/claude/settings.json',
-                'profiles' => [
-                    'default' => [
-                        'ANTHROPIC_API_KEY' => '',
-                        'ANTHROPIC_BASE_URL' => 'https://api.anthropic.com',
-                        'ANTHROPIC_MODEL' => 'claude-3-5-sonnet-20241022',
-                        'ANTHROPIC_DEFAULT_HAIKU_MODEL' => 'claude-3-5-haiku-20241022',
-                        'ANTHROPIC_DEFAULT_OPUS_MODEL' => 'claude-3-opus-20240229',
-                        'ANTHROPIC_DEFAULT_SONNET_MODEL' => 'claude-3-5-sonnet-20241022',
-                        'ANTHROPIC_SMALL_FAST_MODEL' => 'claude-3-5-haiku-20241022',
-                    ],
-                ],
-                'descriptions' => [
-                    'default' => 'Default Claude API configuration',
-                ],
-            ];
+            // Determine source config file
+            $projectRoot = dirname(__DIR__, 2);
+            $sourceConfig = $full
+                ? $projectRoot . '/config/ccs-full.json'
+                : $projectRoot . '/config/ccs.json';
 
-            // Write configuration file
-            $jsonContent = json_encode($defaultConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-            if (file_put_contents($profilesPath, $jsonContent) === false) {
+            // Check if source config exists
+            if (! file_exists($sourceConfig)) {
+                $io->error("Source configuration file not found: {$sourceConfig}");
+                return Command::FAILURE;
+            }
+
+            // Copy configuration file
+            $configContent = file_get_contents($sourceConfig);
+            if ($configContent === false) {
+                throw new Exception("Failed to read source configuration: {$sourceConfig}");
+            }
+
+            if (file_put_contents($profilesPath, $configContent) === false) {
                 throw new Exception("Failed to write configuration file: {$profilesPath}");
             }
 
-            $output->writeln("<info>Configuration file created successfully: {$profilesPath}</info>");
+            $configType = $full ? 'full' : 'default';
+            $io->success("{$configType} configuration file created successfully: {$profilesPath}");
 
             return Command::SUCCESS;
         } catch (Exception $e) {
-            $output->writeln('<error>Error: ' . $e->getMessage() . '</error>');
+            $io->error('Error: ' . $e->getMessage());
             return Command::FAILURE;
         }
     }
