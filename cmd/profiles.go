@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/huangdijia/ccswitch/internal/profiles"
 	"github.com/spf13/cobra"
@@ -72,9 +73,5 @@ var profilesCmd = &cobra.Command{
 }
 
 func repeat(s string, count int) string {
-	result := ""
-	for i := 0; i < count; i++ {
-		result += s
-	}
-	return result
+	return strings.Repeat(s, count)
 }
