@@ -2,7 +2,16 @@
     "settingsPath": "~/.claude/settings.json",
     "default": "zp",
     "profiles": {
-        "default": {},
+        "default": {
+            "ANTHROPIC_BASE_URL": "https://api.anthropic.com",
+            "ANTHROPIC_AUTH_TOKEN": "sk-",
+            "ANTHROPIC_MODEL": "opus",
+            "ANTHROPIC_SMALL_FAST_MODEL": "haiku",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "sonnet",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "opus",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "haiku",
+            "API_TIMEOUT_MS": "3000000"
+        },
         "anyrouter": {
             "ANTHROPIC_BASE_URL": "https://anyrouter.top",
             "ANTHROPIC_AUTH_TOKEN": "sk-",
