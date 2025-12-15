@@ -23,10 +23,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
-    name: 'set',
-    description: 'Set the active Claude API profile'
+    name: 'switch',
+    description: 'Switch the active Claude API profile'
 )]
-class SetCommand extends Command
+class SwitchCommand extends Command
 {
     protected function configure(): void
     {
