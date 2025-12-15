@@ -14,6 +14,7 @@ namespace CCSwitch\Commands;
 use CCSwitch\ClaudeSettings;
 use CCSwitch\Profiles;
 use Exception;
+use stdClass;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -58,7 +59,7 @@ class ResetCommand extends Command
             $settings = new ClaudeSettings($settingsPath);
 
             // Reset settings to empty state
-            $settings->env = new \stdClass();
+            $settings->env = new stdClass();
 
             if (isset($settings->model)) {
                 unset($settings->model);

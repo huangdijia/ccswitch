@@ -15,6 +15,7 @@ use CCSwitch\Profiles;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -52,34 +53,29 @@ class ListCommand extends Command
             $profileData = $profiles->data['profiles'] ?? [];
             $descriptions = $profiles->data['descriptions'] ?? [];
 
+            $table = new Table($output);
+            $table->setHeaders(['Profile', 'Description', 'URL', 'Model', 'Status']);
+
             foreach ($profileData as $name => $config) {
-                $marker = $name === $defaultProfile ? ' *' : '  ';
-                $status = $name === $defaultProfile ? '<comment>(default)</comment>' : '';
+                $status = $name === $defaultProfile ? '<info>Default</info>' : '';
+                $url = $config['ANTHROPIC_BASE_URL'] ?? '';
+                $model = $config['ANTHROPIC_MODEL'] ?? '';
+                $description = $descriptions[$name] ?? '';
 
-                $output->writeln(sprintf(
-                    '%s<info>%s</info> %s',
-                    $marker,
+                $table->addRow([
                     $name,
-                    $status
-                ));
-
-                if (isset($descriptions[$name])) {
-                    $output->writeln(sprintf('    %s', $descriptions[$name]));
-                }
-
-                if (! empty($config)) {
-                    if (isset($config['ANTHROPIC_BASE_URL'])) {
-                        $output->writeln(sprintf('    URL: %s', $config['ANTHROPIC_BASE_URL']));
-                    }
-                    if (isset($config['ANTHROPIC_MODEL'])) {
-                        $output->writeln(sprintf('    Model: %s', $config['ANTHROPIC_MODEL']));
-                    }
-                }
-
-                $output->writeln('');
+                    $description,
+                    $url,
+                    $model,
+                    $status,
+                ]);
             }
 
-            $output->writeln('<comment>* = current default profile</comment>');
+            $table->setStyle('box');
+            $table->render();
+
+            $output->writeln('');
+            $output->writeln('<comment>Total profiles: ' . count($profileData) . '</comment>');
 
             return Command::SUCCESS;
         } catch (Exception $e) {
