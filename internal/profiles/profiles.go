@@ -8,10 +8,10 @@ import (
 
 // Config represents the profiles configuration
 type Config struct {
-	SettingsPath string                        `json:"settingsPath"`
-	Default      string                        `json:"default"`
-	Profiles     map[string]map[string]string  `json:"profiles"`
-	Descriptions map[string]string             `json:"descriptions,omitempty"`
+	SettingsPath string                       `json:"settingsPath"`
+	Default      string                       `json:"default"`
+	Profiles     map[string]map[string]string `json:"profiles"`
+	Descriptions map[string]string            `json:"descriptions,omitempty"`
 }
 
 // Profiles manages profile configurations
