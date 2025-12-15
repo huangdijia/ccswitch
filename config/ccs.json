@@ -1,0 +1,18 @@
+{
+    "settingsPath": "~/.claude/settings.json",
+    "default": "default",
+    "profiles": {
+        "default": {
+            "ANTHROPIC_API_KEY": "sk-XXXXXXXXXXXXXXXXXXXXXX",
+            "ANTHROPIC_BASE_URL": "https://api.anthropic.com",
+            "ANTHROPIC_MODEL": "opus",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "haiku",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "opus",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "sonnet",
+            "ANTHROPIC_SMALL_FAST_MODEL": "haiku"
+        }
+    },
+    "descriptions": {
+        "default": "Use default profile"
+    }
+}

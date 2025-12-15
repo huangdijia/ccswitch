@@ -13,6 +13,10 @@ namespace CCSwitch;
 
 use stdClass;
 
+/**
+ * @property null|stdClass $env
+ * @property null|string $model
+ */
 class ClaudeSettings
 {
     private stdClass $data;
