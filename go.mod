@@ -1,6 +1,6 @@
 module github.com/huangdijia/ccswitch
 
-go 1.24.11
+go 1.21
 
 require github.com/spf13/cobra v1.10.2
 
