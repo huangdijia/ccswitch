@@ -21,10 +21,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
-    name: 'ls',
-    description: 'List all available profiles'
+    name: 'profiles',
+    description: 'List all available profiles',
+    aliases: ['ls']
 )]
-class LsCommand extends Command
+class ProfilesCommand extends Command
 {
     protected function configure(): void
     {
