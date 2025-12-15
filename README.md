@@ -1,6 +1,6 @@
 # CCSwitch
 
-[中文文档](README_CN.md)
+English | [中文文档](README_CN.md)
 
 A command-line tool for managing and switching between different Claude Code API profiles and configurations.
 
