@@ -30,11 +30,11 @@ var profilesCmd = &cobra.Command{
 
 		// Print header
 		fmt.Printf("┌%-20s┬%-30s┬%-40s┬%-20s┬%-10s┐\n",
-			repeat("─", 20), repeat("─", 30), repeat("─", 40), repeat("─", 20), repeat("─", 10))
+			strings.Repeat("─", 20), strings.Repeat("─", 30), strings.Repeat("─", 40), strings.Repeat("─", 20), strings.Repeat("─", 10))
 		fmt.Printf("│ %-18s │ %-28s │ %-38s │ %-18s │ %-8s │\n",
 			"Profile", "Description", "URL", "Model", "Status")
 		fmt.Printf("├%-20s┼%-30s┼%-40s┼%-20s┼%-10s┤\n",
-			repeat("─", 20), repeat("─", 30), repeat("─", 40), repeat("─", 20), repeat("─", 10))
+			strings.Repeat("─", 20), strings.Repeat("─", 30), strings.Repeat("─", 40), strings.Repeat("─", 20), strings.Repeat("─", 10))
 
 		// Print rows
 		for name, config := range profileData {
@@ -63,15 +63,11 @@ var profilesCmd = &cobra.Command{
 
 		// Print footer
 		fmt.Printf("└%-20s┴%-30s┴%-40s┴%-20s┴%-10s┘\n",
-			repeat("─", 20), repeat("─", 30), repeat("─", 40), repeat("─", 20), repeat("─", 10))
+			strings.Repeat("─", 20), strings.Repeat("─", 30), strings.Repeat("─", 40), strings.Repeat("─", 20), strings.Repeat("─", 10))
 
 		fmt.Println()
 		fmt.Printf("Total profiles: %d\n", len(profileData))
 
 		return nil
 	},
-}
-
-func repeat(s string, count int) string {
-	return strings.Repeat(s, count)
 }

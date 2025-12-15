@@ -9,6 +9,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Token prefixes that should not be masked when empty or just the prefix
+var emptyTokenPrefixes = []string{"sk-", "ms-", "sk-kimi-"}
+
 var (
 	showCurrent bool
 )
@@ -117,8 +120,14 @@ var showCmd = &cobra.Command{
 }
 
 func maskSensitiveValue(value string) string {
-	if value == "" || value == "sk-" || value == "ms-" || value == "sk-kimi-" {
+	// Check if value is empty or just a prefix
+	if value == "" {
 		return "(not set)"
+	}
+	for _, prefix := range emptyTokenPrefixes {
+		if value == prefix {
+			return "(not set)"
+		}
 	}
 
 	if len(value) <= 8 {

@@ -6,6 +6,14 @@ import (
 	"os"
 )
 
+// defaultModelKeys are the environment variables that should default to ANTHROPIC_MODEL if not set
+var defaultModelKeys = []string{
+	"ANTHROPIC_DEFAULT_HAIKU_MODEL",
+	"ANTHROPIC_DEFAULT_OPUS_MODEL",
+	"ANTHROPIC_DEFAULT_SONNET_MODEL",
+	"ANTHROPIC_SMALL_FAST_MODEL",
+}
+
 // Config represents the profiles configuration
 type Config struct {
 	SettingsPath string                       `json:"settingsPath"`
@@ -90,14 +98,7 @@ func (p *Profiles) Get(name string) map[string]string {
 
 	// Fill in missing model fields with ANTHROPIC_MODEL if present
 	if model, ok := result["ANTHROPIC_MODEL"]; ok {
-		missing := []string{
-			"ANTHROPIC_DEFAULT_HAIKU_MODEL",
-			"ANTHROPIC_DEFAULT_OPUS_MODEL",
-			"ANTHROPIC_DEFAULT_SONNET_MODEL",
-			"ANTHROPIC_SMALL_FAST_MODEL",
-		}
-
-		for _, key := range missing {
+		for _, key := range defaultModelKeys {
 			if _, exists := result[key]; !exists {
 				result[key] = model
 			}
