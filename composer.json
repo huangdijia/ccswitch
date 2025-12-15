@@ -1,0 +1,24 @@
+{
+    "name": "huangdijia/ccswitch",
+    "description": "",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "CCSwitch\\": "src"
+        }
+    },
+    "bin": "ccswitch.php",
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "huangdijia/php-coding-standard": "^2.5"
+    },
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true
+        }
+    },
+    "scripts": {
+        "analyse": "@php vendor/bin/phpstan analyse --memory-limit=-1",
+        "cs-fix": "@php vendor/bin/php-cs-fixer fix $1 --verbose"
+    }
+}
