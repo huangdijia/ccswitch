@@ -17,7 +17,7 @@ $application->setVersion('1.0.0');
 $application->addCommand(new CCSwitch\Commands\InitCommand());
 $application->addCommand(new CCSwitch\Commands\ShowCommand());
 $application->addCommand(new CCSwitch\Commands\ListCommand());
-$application->addCommand(new CCSwitch\Commands\SwitchCommand());
+$application->addCommand(new CCSwitch\Commands\UseCommand());
 $application->addCommand(new CCSwitch\Commands\ResetCommand());
 
 $exitCode = $application->run();

@@ -24,10 +24,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 
 #[AsCommand(
-    name: 'switch',
+    name: 'use',
     description: 'Switch the active Claude API profile'
 )]
-class SwitchCommand extends Command
+class UseCommand extends Command
 {
     protected function configure(): void
     {
