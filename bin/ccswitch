@@ -1,0 +1,45 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+/**
+ * This file is part of huangdijia/ccswitch.
+ *
+ * @link     https://github.com/huangdijia/ccswitch
+ * @document https://github.com/huangdijia/ccswitch/blob/main/README.md
+ * @contact  Your name <your-mail@gmail.com>
+ */
+
+// Find the autoloader when installed globally via Composer
+$possibleAutoloaderPaths = [
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/../../../autoload.php',
+];
+
+$autoloader = null;
+foreach ($possibleAutoloaderPaths as $path) {
+    if (file_exists($path)) {
+        $autoloader = $path;
+        break;
+    }
+}
+
+if (!$autoloader) {
+    fwrite(STDERR, 'Error: Could not find autoloader. Please run "composer install".'.PHP_EOL);
+    exit(1);
+}
+
+require_once $autoloader;
+
+$application = new Symfony\Component\Console\Application('CCSwitch', '1.0.0');
+
+// Set default command to show help when no command is provided
+$application->add(new CCSwitch\Commands\InitCommand());
+$application->add(new CCSwitch\Commands\ShowCommand());
+$application->add(new CCSwitch\Commands\ProfilesCommand());
+$application->add(new CCSwitch\Commands\UseCommand());
+$application->add(new CCSwitch\Commands\ResetCommand());
+
+$exitCode = $application->run();
+
+exit($exitCode);

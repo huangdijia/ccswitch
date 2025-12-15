@@ -8,6 +8,36 @@ CCSwitch allows you to easily manage multiple Claude Code API configurations (pr
 
 ## Installation
 
+### Global Installation (Recommended)
+
+Install CCSwitch globally using Composer:
+
+```bash
+composer global require huangdijia/ccswitch
+```
+
+After installation, make sure the global Composer bin directory is in your PATH. Add the following line to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
+
+```bash
+export PATH="$HOME/.composer/vendor/bin:$PATH"
+```
+
+Or for newer Composer versions:
+
+```bash
+export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+```
+
+Now you can use the `ccswitch` command from anywhere:
+
+```bash
+ccswitch init
+```
+
+### Local Installation
+
+Alternatively, you can clone the repository and install locally:
+
 1. Clone the repository:
 
 ```bash
@@ -21,16 +51,10 @@ cd ccswitch
 composer install
 ```
 
-3. Make the command executable:
+3. Run the command:
 
 ```bash
-chmod +x ccswitch.php
-```
-
-4. Optionally, create a symlink for easier access:
-
-```bash
-sudo ln -s $(pwd)/ccswitch.php /usr/local/bin/ccswitch
+./bin/ccswitch init
 ```
 
 ## Usage
@@ -38,7 +62,7 @@ sudo ln -s $(pwd)/ccswitch.php /usr/local/bin/ccswitch
 ### Initialize configuration
 
 ```bash
-./ccswitch.php init
+ccswitch init
 ```
 
 This command initializes the CCSwitch configuration. It will:
@@ -50,7 +74,7 @@ This command initializes the CCSwitch configuration. It will:
 ### List available profiles
 
 ```bash
-./ccswitch.php profiles
+ccswitch profiles
 ```
 
 This displays all available profiles configured in your ccs.json file.
@@ -58,7 +82,7 @@ This displays all available profiles configured in your ccs.json file.
 ### Show current configuration
 
 ```bash
-./ccswitch.php show
+ccswitch show
 ```
 
 This shows the currently active profile and its settings.
@@ -66,7 +90,7 @@ This shows the currently active profile and its settings.
 ### Show a specific profile
 
 ```bash
-./ccswitch.php show <profile-name>
+ccswitch show <profile-name>
 ```
 
 Displays the configuration for a specific profile without switching to it.
@@ -74,7 +98,7 @@ Displays the configuration for a specific profile without switching to it.
 ### Switch to a profile
 
 ```bash
-./ccswitch.php use <profile-name>
+ccswitch use <profile-name>
 ```
 
 Switches to the specified profile by updating your Claude Code settings.
@@ -82,7 +106,7 @@ Switches to the specified profile by updating your Claude Code settings.
 ### Reset to default
 
 ```bash
-./ccswitch.php reset
+ccswitch reset
 ```
 
 Resets your Claude Code settings to the default profile.

@@ -1,24 +1,32 @@
 {
     "name": "huangdijia/ccswitch",
-    "description": "",
-    "type": "library",
+    "description": "A command-line tool for managing CleanMyMac X activation states",
+    "type": "project",
+    "keywords": ["cli", "cleanmymac", "activation"],
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "CCSwitch\\": "src"
         }
     },
-    "bin": "ccswitch.php",
+    "bin": [
+        "bin/ccswitch"
+    ],
     "require": {
+        "php": ">=8.1",
         "symfony/console": "^6.0||^7.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.0",
         "huangdijia/php-coding-standard": "^2.5"
     },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "config": {
         "allow-plugins": {
             "ergebnis/composer-normalize": true
-        }
+        },
+        "sort-packages": true
     },
     "scripts": {
         "analyse": "@php vendor/bin/phpstan analyse --memory-limit=-1",
