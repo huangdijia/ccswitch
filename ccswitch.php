@@ -10,10 +10,11 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/vendor/autoload.php';
 
-$application = new Symfony\Component\Console\Application();
-$application->setName('CCSwitch');
-$application->setVersion('1.0.0');
+$application = new Symfony\Component\Console\Application('CCSwitch', '1.0.0');
 
+// Set default command to show help when no command is provided
+$application->setDefaultCommand('help', true);
+$application->addCommand(new CCSwitch\Commands\HelpCommand());
 $application->addCommand(new CCSwitch\Commands\InitCommand());
 $application->addCommand(new CCSwitch\Commands\ShowCommand());
 $application->addCommand(new CCSwitch\Commands\ListCommand());
