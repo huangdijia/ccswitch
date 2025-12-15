@@ -1,7 +1,7 @@
 {
     "name": "huangdijia/ccswitch",
     "description": "",
-    "type": "project",
+    "type": "library",
     "autoload": {
         "psr-4": {
             "CCSwitch\\": "src"
