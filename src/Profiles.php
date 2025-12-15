@@ -15,7 +15,7 @@ use Exception;
 
 class Profiles
 {
-    private array $data = [];
+    public array $data = [];
 
     public function __construct(private string $path)
     {

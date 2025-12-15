@@ -1,0 +1,72 @@
+{
+    "settingsPath": "~/.claude/settings.json",
+    "default": "zp",
+    "profiles": {
+        "default": {},
+        "ar": {
+            "ANTHROPIC_BASE_URL": "https://anyrouter.top",
+            "ANTHROPIC_AUTH_TOKEN": "sk-",
+            "ANTHROPIC_MODEL": "opus",
+            "ANTHROPIC_SMALL_FAST_MODEL": "haiku",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "sonnet",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "opus",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "haiku",
+            "API_TIMEOUT_MS": "3000000"
+        },
+        "zp": {
+            "ANTHROPIC_BASE_URL": "https://open.bigmodel.cn/api/anthropic",
+            "ANTHROPIC_AUTH_TOKEN": "",
+            "ANTHROPIC_MODEL": "GLM-4.6",
+            "ANTHROPIC_SMALL_FAST_MODEL": "GLM-4.5-Air",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "GLM-4.6",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "GLM-4.5-Air",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "GLM-4.6",
+            "API_TIMEOUT_MS": "3000000"
+        },
+        "ds": {
+            "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+            "ANTHROPIC_AUTH_TOKEN": "sk-",
+            "ANTHROPIC_MODEL": "deepseek-chat",
+            "ANTHROPIC_SMALL_FAST_MODEL": "deepseek-chat"
+        },
+        "kfc": {
+            "ANTHROPIC_BASE_URL": "https://api.kimi.com/coding/",
+            "ANTHROPIC_AUTH_TOKEN": "sk-kimi-",
+            "ANTHROPIC_MODEL": "kimi-for-coding",
+            "ANTHROPIC_SMALL_FAST_MODEL": "kimi-for-coding"
+        },
+        "k2": {
+            "ANTHROPIC_BASE_URL": "https://api.moonshot.cn/anthropic/",
+            "ANTHROPIC_AUTH_TOKEN": "sk-",
+            "ANTHROPIC_MODEL": "kimi-k2-turbo-preview",
+            "ANTHROPIC_SMALL_FAST_MODEL": "kimi-k2-turbo-preview"
+        },
+        "ms": {
+            "ANTHROPIC_BASE_URL": "https://api-inference.modelscope.cn",
+            "ANTHROPIC_AUTH_TOKEN": "ms-",
+            "ANTHROPIC_MODEL": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+            "ANTHROPIC_SMALL_FAST_MODEL": "Qwen/Qwen3-235B-A22B-Thinking-2507"
+        },
+        "mm": {
+            "ANTHROPIC_BASE_URL": "https:\/\/api.minimaxi.com\/anthropic",
+            "ANTHROPIC_AUTH_TOKEN": "",
+            "ANTHROPIC_MODEL": "MiniMax-M2",
+            "ANTHROPIC_SMALL_FAST_MODEL": "MiniMax-M2",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "MiniMax-M2",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "MiniMax-M2",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "MiniMax-M2"
+        }
+    },
+    "descriptions": {
+        "ar": "Use AnyRouter's Anthropic API (Recommended)",
+        "zp": "Use Zhipu's Anthropic API (Recommended)",
+        "ds": "Use DeepSeek's Anthropic API (Archived)",
+        "k2": "Use K2's Anthropic API (Archived)",
+        "kfc": "Use KFC's Anthropic API (Archived)",
+        "mm": "Use MiniMax's Anthropic API (Archived)",
+        "ms": "Use ModelScope's Anthropic API (Archived)",
+        "reset": "Reset to default profile",
+        "default": "Use default profile",
+        "help": "Show this help message"
+    }
+}
