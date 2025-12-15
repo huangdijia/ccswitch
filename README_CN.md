@@ -1,6 +1,6 @@
 # CCSwitch
 
-[English](README.md) | 中文
+[English](README.md) | 中文文档
 
 一个用于管理和切换不同 Claude Code API 配置文件和设置的命令行工具。
 
