@@ -22,9 +22,6 @@ var (
 
 const (
 	repo = "huangdijia/ccswitch"
-	// currentVer should be kept in sync with cmd/root.go Version field
-	// TODO: Consider using build-time injection with ldflags: -X github.com/huangdijia/ccswitch/cmd.Version=$(VERSION)
-	currentVer = "2.0.0"
 )
 
 type GitHubRelease struct {
@@ -53,6 +50,7 @@ If you want to install a specific version, use the --version flag.`,
 			return fmt.Errorf("failed to resolve symlink: %w", err)
 		}
 
+		currentVer := rootCmd.Version
 		fmt.Printf("Current version: %s\n", currentVer)
 		fmt.Printf("Executable path: %s\n", exePath)
 
@@ -336,14 +334,17 @@ func extractTarGz(archivePath, destDir string) error {
 		}
 
 		// Prevent path traversal attacks (zip slip)
-		if strings.Contains(header.Name, "..") {
+		// Use filepath.Rel to ensure the path is relative and within destDir
+		cleanName := filepath.Clean(header.Name)
+		if strings.HasPrefix(cleanName, "..") || filepath.IsAbs(cleanName) {
 			return fmt.Errorf("invalid file path in archive: %s", header.Name)
 		}
 
-		target := filepath.Join(destDir, filepath.Clean(header.Name))
+		target := filepath.Join(destDir, cleanName)
 
-		// Ensure the target is within destDir
-		if !strings.HasPrefix(target, filepath.Clean(destDir)+string(os.PathSeparator)) {
+		// Double-check: Ensure the target is within destDir using filepath.Rel
+		rel, err := filepath.Rel(destDir, target)
+		if err != nil || strings.HasPrefix(rel, "..") {
 			return fmt.Errorf("invalid file path in archive: %s", header.Name)
 		}
 
