@@ -2,8 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -67,7 +70,31 @@ var initCmd = &cobra.Command{
 		}
 
 		if configContent == nil {
-			return fmt.Errorf("source configuration file not found. Tried: %v", possiblePaths)
+			// Try to download from GitHub
+			repo := "huangdijia/ccswitch"
+			branch := "main"
+			configFile := "ccs.json"
+			if initFull {
+				configFile = "ccs-full.json"
+			}
+			githubURL := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/config/%s", repo, branch, configFile)
+
+			fmt.Printf("Downloading configuration from GitHub...\n")
+			resp, err := http.Get(githubURL)
+			if err != nil {
+				return fmt.Errorf("failed to download configuration from GitHub: %w", err)
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode != http.StatusOK {
+				return fmt.Errorf("GitHub API returned status: %s", resp.Status)
+			}
+
+			configContent, err = io.ReadAll(resp.Body)
+			if err != nil {
+				return fmt.Errorf("failed to read downloaded configuration: %w", err)
+			}
+			foundPath = githubURL
 		}
 
 		// Write configuration file
@@ -80,7 +107,11 @@ var initCmd = &cobra.Command{
 			configType = "full"
 		}
 		fmt.Printf("✓ %s configuration file created successfully: %s\n", configType, profilesPath)
-		fmt.Printf("  (copied from: %s)\n", foundPath)
+		if strings.HasPrefix(foundPath, "http") {
+			fmt.Printf("  (downloaded from: %s)\n", foundPath)
+		} else {
+			fmt.Printf("  (copied from: %s)\n", foundPath)
+		}
 
 		return nil
 	},
