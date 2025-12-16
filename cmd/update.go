@@ -354,6 +354,10 @@ func extractTarGz(archivePath, destDir string) error {
 				return err
 			}
 		case tar.TypeReg:
+			// Ensure parent directory exists
+			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
+				return err
+			}
 			outFile, err := os.Create(target)
 			if err != nil {
 				return err
