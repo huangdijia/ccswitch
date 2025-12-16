@@ -10,15 +10,17 @@ import (
 var (
 	profilesPath string
 	settingsPath string
+	// appVersion holds the version of the application
+	appVersion string
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "ccswitch",
 	Short: "A command-line tool for managing and switching between different Claude Code API profiles",
-	Long: `CCSwitch allows you to easily manage multiple Claude Code API configurations (profiles) 
-and switch between them. This is useful when you need to use different API endpoints, 
+	Long: `CCSwitch allows you to easily manage multiple Claude Code API configurations (profiles)
+and switch between them. This is useful when you need to use different API endpoints,
 models, or authentication tokens for different projects or environments.`,
-	Version: "2.0.0",
+	Version: appVersion,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -48,4 +50,10 @@ func init() {
 	rootCmd.AddCommand(useCmd)
 	rootCmd.AddCommand(resetCmd)
 	rootCmd.AddCommand(updateCmd)
+}
+
+// SetVersion sets the application version
+func SetVersion(v string) {
+	appVersion = v
+	rootCmd.Version = appVersion
 }
