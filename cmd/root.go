@@ -47,4 +47,5 @@ func init() {
 	rootCmd.AddCommand(profilesCmd)
 	rootCmd.AddCommand(useCmd)
 	rootCmd.AddCommand(resetCmd)
+	rootCmd.AddCommand(updateCmd)
 }

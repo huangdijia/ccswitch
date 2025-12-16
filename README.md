@@ -133,6 +133,31 @@ ccswitch reset
 
 Resets your Claude Code settings to the default profile.
 
+### Update to latest version
+
+```bash
+ccswitch update
+```
+
+Updates ccswitch to the latest version from GitHub releases. This command will:
+
+- Check for the latest version on GitHub
+- Download and install the new version automatically
+- Create a backup of the current version (removed on success)
+
+**Update options:**
+
+```bash
+# Update to latest version
+ccswitch update
+
+# Update to a specific version
+ccswitch update --version v1.0.0
+
+# Force update even if already up-to-date
+ccswitch update --force
+```
+
 ## Configuration
 
 The profiles are stored in `~/.ccswitch/ccs.json`. The configuration file has the following structure:

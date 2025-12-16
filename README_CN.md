@@ -133,6 +133,31 @@ ccswitch reset
 
 将您的 Claude Code 设置重置为默认配置文件。
 
+### 更新到最新版本
+
+```bash
+ccswitch update
+```
+
+从 GitHub releases 更新 ccswitch 到最新版本。此命令将：
+
+- 检查 GitHub 上的最新版本
+- 自动下载并安装新版本
+- 创建当前版本的备份（成功后删除）
+
+**更新选项：**
+
+```bash
+# 更新到最新版本
+ccswitch update
+
+# 更新到特定版本
+ccswitch update --version v1.0.0
+
+# 即使已经是最新版本也强制更新
+ccswitch update --force
+```
+
 ## 配置
 
 配置文件存储在 `~/.ccswitch/ccs.json` 中。配置文件具有以下结构：
