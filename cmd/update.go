@@ -355,8 +355,11 @@ func extractTarGz(archivePath, destDir string) error {
 			}
 		case tar.TypeReg:
 			// Ensure parent directory exists
-			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
-				return err
+			parentDir := filepath.Dir(target)
+			if parentDir != "." {
+				if err := os.MkdirAll(parentDir, 0755); err != nil {
+					return err
+				}
 			}
 			outFile, err := os.Create(target)
 			if err != nil {
@@ -367,6 +370,17 @@ func extractTarGz(archivePath, destDir string) error {
 				return err
 			}
 			outFile.Close()
+		case tar.TypeSymlink:
+			// Ensure parent directory exists for symlinks
+			parentDir := filepath.Dir(target)
+			if parentDir != "." {
+				if err := os.MkdirAll(parentDir, 0755); err != nil {
+					return err
+				}
+			}
+			if err := os.Symlink(header.Linkname, target); err != nil {
+				return fmt.Errorf("failed to create symlink: %w", err)
+			}
 		}
 	}
 
