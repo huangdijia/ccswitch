@@ -10,35 +10,21 @@ CCSwitch 允许您轻松管理多个 Claude Code API 配置（配置文件）并
 
 ## 安装
 
-### 全局安装（推荐）
+### 使用 Go Install（推荐）
 
-使用 Composer 全局安装 CCSwitch：
-
-```bash
-composer global require huangdijia/ccswitch
-```
-
-安装后，确保全局 Composer bin 目录在您的 PATH 中。将以下行添加到您的 shell 配置文件（`~/.bashrc`、`~/.zshrc` 等）：
+如果您已安装 Go 1.21 或更高版本，可以直接安装 CCSwitch：
 
 ```bash
-export PATH="$HOME/.composer/vendor/bin:$PATH"
+go install github.com/huangdijia/ccswitch@latest
 ```
 
-或者对于较新版本的 Composer：
+确保您的 Go bin 目录在 PATH 中：
 
 ```bash
-export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
 ```
 
-现在您可以在任何地方使用 `ccswitch` 命令：
-
-```bash
-ccswitch init
-```
-
-### 本地安装
-
-或者，您可以克隆仓库并在本地安装：
+### 从源码编译
 
 1. 克隆仓库：
 
@@ -47,17 +33,26 @@ git clone https://github.com/huangdijia/ccswitch.git
 cd ccswitch
 ```
 
-2. 安装依赖：
+2. 编译并安装：
 
 ```bash
-composer install
+make install
 ```
 
-3. 运行命令：
+或仅编译：
 
 ```bash
-./bin/ccswitch init
+make build
+./ccswitch init
 ```
+
+### 使用 Homebrew (macOS/Linux)
+
+即将推出...
+
+### 二进制发布版本
+
+从 [releases 页面](https://github.com/huangdijia/ccswitch/releases) 下载预编译的二进制文件。
 
 ## 使用方法
 
@@ -165,26 +160,70 @@ ccswitch reset
 
 ## 开发
 
-### 代码分析
+### 编译
 
-运行 PHPStan 进行静态分析：
-
-```bash
-composer analyse
-```
-
-### 代码风格
-
-修复代码风格问题：
+编译二进制文件：
 
 ```bash
-composer cs-fix
+make build
 ```
+
+### 测试
+
+运行测试：
+
+```bash
+make test
+```
+
+运行测试并生成覆盖率报告：
+
+```bash
+make test-coverage
+```
+
+这将在 `coverage.html` 中生成覆盖率报告。
+
+### 代码格式化
+
+格式化代码：
+
+```bash
+make fmt
+```
+
+运行静态分析：
+
+```bash
+make vet
+```
+
+### 可用的 Make 命令
+
+运行 `make help` 查看所有可用命令：
+
+```bash
+make help
+```
+
+## 持续集成
+
+项目使用 GitHub Actions 进行 CI/CD：
+
+- **测试工作流**：在每次推送和拉取请求时运行
+  - 执行所有单元测试并进行竞态检测
+  - 生成覆盖率报告
+  - 构建二进制文件并验证
+
+- **发布工作流**：在版本标签时运行（例如 `v1.0.0`）
+  - 运行所有测试
+  - 为多个平台构建二进制文件（Linux、macOS、Windows）
+  - 支持多种架构（amd64、arm64、arm）
+  - 创建 GitHub 发布版本，包含二进制文件和校验和
 
 ## 系统要求
 
-- PHP 8.1 或更高版本
-- Composer
+- Go 1.21 或更高版本
 
 ## 许可证
 

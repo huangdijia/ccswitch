@@ -10,35 +10,21 @@ CCSwitch allows you to easily manage multiple Claude Code API configurations (pr
 
 ## Installation
 
-### Global Installation (Recommended)
+### Using Go Install (Recommended)
 
-Install CCSwitch globally using Composer:
-
-```bash
-composer global require huangdijia/ccswitch
-```
-
-After installation, make sure the global Composer bin directory is in your PATH. Add the following line to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
+If you have Go 1.21 or higher installed, you can install CCSwitch directly:
 
 ```bash
-export PATH="$HOME/.composer/vendor/bin:$PATH"
+go install github.com/huangdijia/ccswitch@latest
 ```
 
-Or for newer Composer versions:
+Make sure your Go bin directory is in your PATH:
 
 ```bash
-export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
 ```
 
-Now you can use the `ccswitch` command from anywhere:
-
-```bash
-ccswitch init
-```
-
-### Local Installation
-
-Alternatively, you can clone the repository and install locally:
+### From Source
 
 1. Clone the repository:
 
@@ -47,17 +33,26 @@ git clone https://github.com/huangdijia/ccswitch.git
 cd ccswitch
 ```
 
-2. Install dependencies:
+2. Build and install:
 
 ```bash
-composer install
+make install
 ```
 
-3. Run the command:
+Or build only:
 
 ```bash
-./bin/ccswitch init
+make build
+./ccswitch init
 ```
+
+### Using Homebrew (macOS/Linux)
+
+Coming soon...
+
+### Binary Releases
+
+Download pre-built binaries from the [releases page](https://github.com/huangdijia/ccswitch/releases).
 
 ## Usage
 
@@ -165,26 +160,70 @@ The tool comes with several pre-configured profiles for different Claude API pro
 
 ## Development
 
-### Code Analysis
+### Building
 
-Run PHPStan for static analysis:
-
-```bash
-composer analyse
-```
-
-### Code Style
-
-Fix code style issues:
+Build the binary:
 
 ```bash
-composer cs-fix
+make build
 ```
+
+### Testing
+
+Run tests:
+
+```bash
+make test
+```
+
+Run tests with coverage:
+
+```bash
+make test-coverage
+```
+
+This will generate a coverage report in `coverage.html`.
+
+### Code Formatting
+
+Format the code:
+
+```bash
+make fmt
+```
+
+Run static analysis:
+
+```bash
+make vet
+```
+
+### Available Make Targets
+
+Run `make help` to see all available targets:
+
+```bash
+make help
+```
+
+## Continuous Integration
+
+The project uses GitHub Actions for CI/CD:
+
+- **Test Workflow**: Runs on every push and pull request
+  - Executes all unit tests with race detection
+  - Generates coverage reports
+  - Builds the binary and verifies it
+
+- **Release Workflow**: Runs on version tags (e.g., `v1.0.0`)
+  - Runs all tests
+  - Builds binaries for multiple platforms (Linux, macOS, Windows)
+  - Supports multiple architectures (amd64, arm64, arm)
+  - Creates GitHub releases with binaries and checksums
 
 ## Requirements
 
-- PHP 8.1 or higher
-- Composer
+- Go 1.21 or higher
 
 ## License
 
