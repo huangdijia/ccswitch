@@ -19,7 +19,7 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
 
 build: ## Build the binary
-	$(GO) build $(GOFLAGS) -o $(BINARY_NAME) main.go
+	$(GO) build $(GOFLAGS) -o $(BINARY_NAME) .
 	@echo "Build complete: $(BINARY_NAME)"
 
 install: build ## Install the binary and config files

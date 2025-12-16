@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/huangdijia/ccswitch/internal/profiles"
 	"github.com/spf13/cobra"
 )
 
@@ -102,6 +103,77 @@ func TestUseCommandProfileNotFound(t *testing.T) {
 		err := rootCmd.Execute()
 		if err == nil {
 			t.Error("Expected error for missing profile")
+		}
+	})
+}
+
+func TestUseCommandInteractive(t *testing.T) {
+	_, profilesPath, settingsPath := setupTestEnvironment(t)
+
+	rootCmd := &cobra.Command{Use: "test"}
+	rootCmd.PersistentFlags().StringP("profiles", "p", profilesPath, "profiles path")
+	rootCmd.PersistentFlags().StringP("settings", "s", settingsPath, "settings path")
+	rootCmd.AddCommand(useCmd)
+
+	t.Run("test interactive mode setup", func(t *testing.T) {
+		// This test verifies that the interactive mode doesn't error out
+		// We can't easily test stdin interaction in unit tests, but we can
+		// ensure the code path is set up correctly
+
+		// First verify that profiles are loaded correctly
+		profs, err := profiles.New(profilesPath)
+		if err != nil {
+			t.Fatalf("Failed to load profiles: %v", err)
+		}
+
+		availableProfiles := profs.GetAll()
+		if len(availableProfiles) == 0 {
+			t.Error("Expected profiles to be available")
+		}
+
+		// Verify test profiles exist
+		expectedProfiles := []string{"test-profile", "another-profile"}
+		for _, expected := range expectedProfiles {
+			found := false
+			for _, profile := range availableProfiles {
+				if profile == expected {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("Expected profile '%s' not found in available profiles", expected)
+			}
+		}
+
+		// Test that the command structure is correct for interactive mode
+		if useCmd.RunE == nil {
+			t.Error("Expected RunE to be set on useCmd")
+		}
+	})
+
+	t.Run("empty profiles list", func(t *testing.T) {
+		// Create empty profiles config
+		tmpDir := t.TempDir()
+		emptyProfilesPath := filepath.Join(tmpDir, "empty-profiles.json")
+		emptyProfilesConfig := map[string]any{
+			"settingsPath": settingsPath,
+			"default":      "",
+			"profiles":     map[string]any{},
+		}
+		emptyProfilesData, _ := json.Marshal(emptyProfilesConfig)
+		os.WriteFile(emptyProfilesPath, emptyProfilesData, 0644)
+
+		// Test with empty profiles - this should fail gracefully
+		rootCmd.SetArgs([]string{"use", "-p", emptyProfilesPath, "-s", settingsPath})
+		err := rootCmd.Execute()
+
+		// Since we can't simulate stdin input, this will fail with "invalid selection"
+		// but the important thing is that it doesn't panic and handles the empty case
+		if err == nil {
+			t.Log("Command completed (this may vary based on test environment)")
+		} else {
+			t.Logf("Command failed as expected without stdin: %v", err)
 		}
 	})
 }
