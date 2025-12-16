@@ -10,7 +10,32 @@ CCSwitch allows you to easily manage multiple Claude Code API configurations (pr
 
 ## Installation
 
-### Using Go Install (Recommended)
+### Quick Install (Recommended)
+
+The easiest way to install CCSwitch is with our installation script:
+
+```bash
+curl -sSL https://github.com/huangdijia/ccswitch/install.sh | bash
+```
+
+This will:
+
+- Detect your platform and architecture
+- Download the latest release binary
+- Install it to `~/.local/bin`
+- Add helpful instructions if the directory isn't in your PATH
+
+**Installation options:**
+
+```bash
+# Install to a custom directory
+curl -sSL https://github.com/huangdijia/ccswitch/install.sh | bash -s -- -d /usr/local/bin
+
+# Install a specific version
+curl -sSL https://github.com/huangdijia/ccswitch/install.sh | bash -s -- -v v1.0.0
+```
+
+### Using Go Install
 
 If you have Go 1.21 or higher installed, you can install CCSwitch directly:
 
