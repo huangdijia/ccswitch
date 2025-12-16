@@ -40,12 +40,12 @@ func TestMaskSensitiveValue(t *testing.T) {
 		{
 			name:     "long token",
 			input:    "sk-1234567890abcdef",
-			expected: "sk-1**************cdef",
+			expected: "sk-1***********cdef",
 		},
 		{
 			name:     "very long token",
 			input:    "sk-ant-api03-1234567890abcdefghijklmnopqrstuvwxyz",
-			expected: "sk-a******************************************wxyz",
+			expected: "sk-a*****************************************wxyz",
 		},
 	}
 
