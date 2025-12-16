@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/huangdijia/ccswitch/internal/pathutil"
 	"github.com/spf13/cobra"
 )
 
@@ -36,12 +37,7 @@ func Execute() {
 }
 
 func init() {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		homeDir = "~"
-	}
-
-	defaultProfilesPath := homeDir + "/.ccswitch/ccs.json"
+	defaultProfilesPath := pathutil.DefaultProfilesPath()
 
 	// Global flags
 	rootCmd.PersistentFlags().StringVarP(&profilesPath, "profiles", "p", defaultProfilesPath, "Path to the profiles configuration file")

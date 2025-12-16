@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/huangdijia/ccswitch/internal/pathutil"
 )
 
 // defaultModelKeys are the environment variables that should default to ANTHROPIC_MODEL if not set
@@ -30,7 +32,7 @@ type Profiles struct {
 
 // New creates a new Profiles instance
 func New(path string) (*Profiles, error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if !pathutil.FileExists(path) {
 		return nil, fmt.Errorf("profiles file not found: %s", path)
 	}
 
