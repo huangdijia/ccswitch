@@ -40,9 +40,9 @@ while [[ $# -gt 0 ]]; do
             echo "  -h, --help            Show this help message"
             echo ""
             echo "Examples:"
-            echo "  curl -sSL https://github.com/huangdijia/ccswitch/install.sh | bash"
-            echo "  curl -sSL https://github.com/huangdijia/ccswitch/install.sh | bash -s -- -d /usr/local/bin"
-            echo "  curl -sSL https://github.com/huangdijia/ccswitch/install.sh | bash -s -- -v v1.0.0"
+            echo "  curl -sSL https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh | bash"
+            echo "  curl -sSL https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh | bash -s -- -d /usr/local/bin"
+            echo "  curl -sSL https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh | bash -s -- -v v1.0.0"
             exit 0
             ;;
         *)
