@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/huangdijia/ccswitch/workflows/Test/badge.svg)](https://github.com/huangdijia/ccswitch/actions)
 [![Release](https://img.shields.io/github/release/huangdijia/ccswitch.svg)](https://github.com/huangdijia/ccswitch/releases)
+[![Downloads](https://img.shields.io/github/downloads/huangdijia/ccswitch/total.svg)](https://github.com/huangdijia/ccswitch/releases)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 [English](README.md) | 中文文档
