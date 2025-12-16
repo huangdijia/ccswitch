@@ -62,15 +62,6 @@ Make sure your Go bin directory is in your PATH:
 export PATH="$HOME/go/bin:$PATH"
 ```
 
-### Package Managers
-
-**Homebrew (macOS/Linux)**
-
-Coming soon...
-
-**Scoop (Windows)**
-
-Coming soon...
 
 ### From Source
 

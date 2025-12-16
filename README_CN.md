@@ -62,15 +62,6 @@ go install github.com/huangdijia/ccswitch@latest
 export PATH="$HOME/go/bin:$PATH"
 ```
 
-### 包管理器
-
-**Homebrew (macOS/Linux)**
-
-即将推出...
-
-**Scoop (Windows)**
-
-即将推出...
 
 ### 从源码编译
 
