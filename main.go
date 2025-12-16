@@ -18,6 +18,6 @@ func init() {
 
 func main() {
 	// Set the version in the cmd package before executing
-	cmd.SetVersion(version)
+	cmd.SetVersion(version, commit, date)
 	cmd.Execute()
 }

@@ -10,7 +10,12 @@ SHAREDIR=$(PREFIX)/share/$(BINARY_NAME)
 
 # Build flags
 GO=go
-GOFLAGS=-ldflags="-s -w"
+
+# Version info
+VERSION ?= $(shell git describe --tags --always --dirty)
+COMMIT ?= $(shell git rev-parse HEAD)
+DATE ?= $(shell date -u +'%Y-%m-%d_%H:%M:%S')
+LDFLAGS=-ldflags="-X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.date=$(DATE) -s -w"
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -19,7 +24,8 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
 
 build: ## Build the binary
-	$(GO) build $(GOFLAGS) -o $(BINARY_NAME) .
+	@echo "Building $(BINARY_NAME) with version $(VERSION) (commit: $(COMMIT), date: $(DATE))"
+	$(GO) build $(LDFLAGS) -o $(BINARY_NAME) .
 	@echo "Build complete: $(BINARY_NAME)"
 
 install: build ## Install the binary and config files

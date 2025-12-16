@@ -12,6 +12,10 @@ var (
 	settingsPath string
 	// appVersion holds the version of the application
 	appVersion string
+	// appCommit holds the git commit hash
+	appCommit string
+	// appDate holds the build date
+	appDate string
 )
 
 var rootCmd = &cobra.Command{
@@ -52,8 +56,18 @@ func init() {
 	rootCmd.AddCommand(updateCmd)
 }
 
-// SetVersion sets the application version
-func SetVersion(v string) {
+// SetVersion sets the application version, commit and build date
+func SetVersion(v, c, d string) {
 	appVersion = v
-	rootCmd.Version = appVersion
+	appCommit = c
+	appDate = d
+	// Include commit and date in version string if available
+	versionStr := appVersion
+	if appCommit != "none" && appCommit != "" {
+		versionStr += " (commit: " + appCommit[:8] + ")"
+	}
+	if appDate != "unknown" && appDate != "" {
+		versionStr += ", built: " + appDate
+	}
+	rootCmd.Version = versionStr
 }
