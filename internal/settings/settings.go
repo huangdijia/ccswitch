@@ -12,6 +12,7 @@ type ClaudeSettings struct {
 	Path  string                 `json:"-"`
 	Model string                 `json:"model,omitempty"`
 	Env   map[string]interface{} `json:"env,omitempty"`
+	raw   map[string]interface{} `json:"-"` // Store all fields to preserve them
 }
 
 // New creates a new ClaudeSettings instance
@@ -28,6 +29,7 @@ func New(path string) (*ClaudeSettings, error) {
 	settings := &ClaudeSettings{
 		Path: path,
 		Env:  make(map[string]interface{}),
+		raw:  make(map[string]interface{}),
 	}
 
 	// Create file if it doesn't exist
@@ -62,6 +64,9 @@ func (s *ClaudeSettings) Read() error {
 		return err
 	}
 
+	// Store all fields to preserve them
+	s.raw = raw
+
 	// Extract model if present
 	if model, ok := raw["model"].(string); ok {
 		s.Model = model
@@ -79,15 +84,31 @@ func (s *ClaudeSettings) Read() error {
 
 // Write writes the settings to the file
 func (s *ClaudeSettings) Write() error {
-	// Build output structure
-	output := make(map[string]interface{})
-
-	if s.Model != "" {
-		output["model"] = s.Model
+	// Start with existing fields
+	var output map[string]interface{}
+	if s.raw != nil {
+		output = make(map[string]interface{})
+		for k, v := range s.raw {
+			output[k] = v
+		}
+	} else {
+		output = make(map[string]interface{})
 	}
 
+	// Update model if set
+	if s.Model != "" {
+		output["model"] = s.Model
+	} else if _, exists := output["model"]; exists {
+		// Remove model if empty and it existed
+		delete(output, "model")
+	}
+
+	// Update env if set
 	if len(s.Env) > 0 {
 		output["env"] = s.Env
+	} else if _, exists := output["env"]; exists {
+		// Remove env if empty and it existed
+		delete(output, "env")
 	}
 
 	// Marshal to JSON with pretty print
