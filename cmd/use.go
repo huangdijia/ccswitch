@@ -13,17 +13,45 @@ var useCmd = &cobra.Command{
 	Short: "Switch the active Claude API profile",
 	Long:  "This command allows you to set the active Claude API profile",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			return fmt.Errorf("please specify a profile name")
-		}
-
-		profileName := args[0]
 		profilesPath := cmd.Flag("profiles").Value.String()
 		settingsPath := cmd.Flag("settings").Value.String()
 
 		profs, err := profiles.New(profilesPath)
 		if err != nil {
 			return err
+		}
+
+		var profileName string
+		if len(args) == 0 {
+			// Interactive selection when no profile is specified
+			availableProfiles := profs.GetAll()
+			if len(availableProfiles) == 0 {
+				return fmt.Errorf("no profiles available")
+			}
+
+			fmt.Println("Available profiles:")
+			for i, name := range availableProfiles {
+				fmt.Printf("  %d. %s\n", i+1, name)
+			}
+
+			fmt.Print("\nSelect profile (enter number or name): ")
+			var input string
+			_, err := fmt.Scanln(&input)
+			if err != nil {
+				return fmt.Errorf("invalid selection")
+			}
+
+			// Try to parse as number first
+			var index int
+			_, err = fmt.Sscanf(input, "%d", &index)
+			if err == nil && index >= 1 && index <= len(availableProfiles) {
+				profileName = availableProfiles[index-1]
+			} else {
+				// Treat as profile name
+				profileName = input
+			}
+		} else {
+			profileName = args[0]
 		}
 
 		if !profs.Has(profileName) {
@@ -50,8 +78,8 @@ var useCmd = &cobra.Command{
 		// Get the environment variables for the selected profile
 		env := profs.Get(profileName)
 
-		// Convert map[string]string to map[string]interface{}
-		envInterface := make(map[string]interface{})
+		// Convert map[string]string to map[string]any
+		envInterface := make(map[string]any)
 		for k, v := range env {
 			envInterface[k] = v
 		}

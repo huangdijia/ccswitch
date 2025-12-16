@@ -16,10 +16,10 @@ func setupTestEnvironment(t *testing.T) (string, string, string) {
 	settingsPath := filepath.Join(tmpDir, "settings.json")
 
 	// Create test profiles config
-	profilesConfig := map[string]interface{}{
+	profilesConfig := map[string]any{
 		"settingsPath": settingsPath,
 		"default":      "test-profile",
-		"profiles": map[string]interface{}{
+		"profiles": map[string]any{
 			"test-profile": map[string]string{
 				"ANTHROPIC_BASE_URL":         "https://api.test.com",
 				"ANTHROPIC_MODEL":            "test-model",
@@ -60,7 +60,7 @@ func TestUseCommand(t *testing.T) {
 			t.Fatalf("Failed to read settings: %v", err)
 		}
 
-		var settings map[string]interface{}
+		var settings map[string]any
 		if err := json.Unmarshal(data, &settings); err != nil {
 			t.Fatalf("Failed to parse settings: %v", err)
 		}
@@ -69,7 +69,7 @@ func TestUseCommand(t *testing.T) {
 			t.Errorf("Model not set correctly, got: %v", settings["model"])
 		}
 
-		env, ok := settings["env"].(map[string]interface{})
+		env, ok := settings["env"].(map[string]any)
 		if !ok {
 			t.Fatal("Env not set in settings")
 		}
@@ -84,14 +84,6 @@ func TestUseCommand(t *testing.T) {
 		err := rootCmd.Execute()
 		if err == nil {
 			t.Error("Expected error for non-existent profile, got nil")
-		}
-	})
-
-	t.Run("error without profile argument", func(t *testing.T) {
-		rootCmd.SetArgs([]string{"use", "-p", profilesPath, "-s", settingsPath})
-		err := rootCmd.Execute()
-		if err == nil {
-			t.Error("Expected error without profile argument, got nil")
 		}
 	})
 }
