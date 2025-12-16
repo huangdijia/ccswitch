@@ -183,9 +183,16 @@ download_binary() {
     fi
 
     # Find the ccswitch binary in the extracted files
-    local binary_path=$(find "${temp_dir}" -name "ccswitch" -type f | head -n 1)
+    local binary_path=$(find "${temp_dir}" -name "ccswitch" -type f -perm +111 | head -n 1)
+    if [[ -z "${binary_path}" ]]; then
+        # Fallback for systems without -perm support
+        binary_path=$(find "${temp_dir}" -name "ccswitch" -type f | head -n 1)
+    fi
+
     if [[ -z "${binary_path}" ]]; then
         print_error "Failed to find ccswitch binary in archive"
+        print_error "Contents of archive:"
+        ls -la "${temp_dir}"
         exit 1
     fi
 
