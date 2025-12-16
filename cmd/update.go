@@ -21,7 +21,9 @@ var (
 )
 
 const (
-	repo       = "huangdijia/ccswitch"
+	repo = "huangdijia/ccswitch"
+	// currentVer should be kept in sync with cmd/root.go Version field
+	// TODO: Consider using build-time injection with ldflags: -X github.com/huangdijia/ccswitch/cmd.Version=$(VERSION)
 	currentVer = "2.0.0"
 )
 
@@ -191,9 +193,46 @@ func isVersionUpToDate(current, target string) bool {
 	current = strings.TrimPrefix(current, "v")
 	target = strings.TrimPrefix(target, "v")
 
-	// Simple string comparison for now
-	// In a more robust implementation, you'd want to use semver comparison
-	return current == target
+	// Compare semantic versions
+	return compareVersions(current, target) >= 0
+}
+
+// compareVersions compares two semantic version strings
+// Returns: -1 if v1 < v2, 0 if v1 == v2, 1 if v1 > v2
+func compareVersions(v1, v2 string) int {
+	// Split versions into parts
+	parts1 := strings.Split(v1, ".")
+	parts2 := strings.Split(v2, ".")
+
+	// Pad the shorter version with zeros
+	maxLen := len(parts1)
+	if len(parts2) > maxLen {
+		maxLen = len(parts2)
+	}
+
+	for len(parts1) < maxLen {
+		parts1 = append(parts1, "0")
+	}
+	for len(parts2) < maxLen {
+		parts2 = append(parts2, "0")
+	}
+
+	// Compare each part
+	for i := 0; i < maxLen; i++ {
+		// Parse as integers, ignoring non-numeric suffixes
+		var n1, n2 int
+		fmt.Sscanf(parts1[i], "%d", &n1)
+		fmt.Sscanf(parts2[i], "%d", &n2)
+
+		if n1 < n2 {
+			return -1
+		}
+		if n1 > n2 {
+			return 1
+		}
+	}
+
+	return 0
 }
 
 // downloadAndInstall downloads the binary and installs it
@@ -296,7 +335,17 @@ func extractTarGz(archivePath, destDir string) error {
 			return err
 		}
 
-		target := filepath.Join(destDir, header.Name)
+		// Prevent path traversal attacks (zip slip)
+		if strings.Contains(header.Name, "..") {
+			return fmt.Errorf("invalid file path in archive: %s", header.Name)
+		}
+
+		target := filepath.Join(destDir, filepath.Clean(header.Name))
+
+		// Ensure the target is within destDir
+		if !strings.HasPrefix(target, filepath.Clean(destDir)+string(os.PathSeparator)) {
+			return fmt.Errorf("invalid file path in archive: %s", header.Name)
+		}
 
 		switch header.Typeflag {
 		case tar.TypeDir:

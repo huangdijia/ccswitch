@@ -47,6 +47,78 @@ func TestDetectPlatform(t *testing.T) {
 	}
 }
 
+func TestCompareVersions(t *testing.T) {
+	tests := []struct {
+		name string
+		v1   string
+		v2   string
+		want int
+	}{
+		{
+			name: "equal versions",
+			v1:   "1.0.0",
+			v2:   "1.0.0",
+			want: 0,
+		},
+		{
+			name: "v1 greater major",
+			v1:   "2.0.0",
+			v2:   "1.0.0",
+			want: 1,
+		},
+		{
+			name: "v1 less major",
+			v1:   "1.0.0",
+			v2:   "2.0.0",
+			want: -1,
+		},
+		{
+			name: "v1 greater minor",
+			v1:   "1.2.0",
+			v2:   "1.1.0",
+			want: 1,
+		},
+		{
+			name: "v1 less minor",
+			v1:   "1.1.0",
+			v2:   "1.2.0",
+			want: -1,
+		},
+		{
+			name: "v1 greater patch",
+			v1:   "1.0.2",
+			v2:   "1.0.1",
+			want: 1,
+		},
+		{
+			name: "v1 less patch",
+			v1:   "1.0.1",
+			v2:   "1.0.2",
+			want: -1,
+		},
+		{
+			name: "different lengths v1 longer",
+			v1:   "1.0.0.1",
+			v2:   "1.0.0",
+			want: 1,
+		},
+		{
+			name: "different lengths v2 longer",
+			v1:   "1.0.0",
+			v2:   "1.0.0.1",
+			want: -1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := compareVersions(tt.v1, tt.v2); got != tt.want {
+				t.Errorf("compareVersions(%q, %q) = %v, want %v", tt.v1, tt.v2, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestIsVersionUpToDate(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -73,13 +145,25 @@ func TestIsVersionUpToDate(t *testing.T) {
 			want:    true,
 		},
 		{
-			name:    "different versions",
+			name:    "current newer patch",
+			current: "1.0.1",
+			target:  "1.0.0",
+			want:    true,
+		},
+		{
+			name:    "current older patch",
 			current: "1.0.0",
 			target:  "1.0.1",
 			want:    false,
 		},
 		{
-			name:    "different major versions",
+			name:    "current newer major",
+			current: "2.0.0",
+			target:  "1.0.0",
+			want:    true,
+		},
+		{
+			name:    "current older major",
 			current: "1.0.0",
 			target:  "2.0.0",
 			want:    false,
