@@ -1,12 +1,25 @@
 # CCSwitch
 
+[![CI](https://github.com/huangdijia/ccswitch/workflows/CI/badge.svg)](https://github.com/huangdijia/ccswitch/actions)
+[![Release](https://img.shields.io/github/release/huangdijia/ccswitch.svg)](https://github.com/huangdijia/ccswitch/releases)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 [English](README.md) | 中文文档
 
-一个用于管理和切换不同 Claude Code API 配置文件和设置的命令行工具。
+一个强大的命令行工具，用于管理和切换不同 Claude Code API 配置文件和设置。
 
 ## 描述
 
 CCSwitch 允许您轻松管理多个 Claude Code API 配置（配置文件）并在它们之间切换。当您需要为不同的项目或环境使用不同的 API 端点、模型或身份验证令牌时，这将非常有用。
+
+### 主要特性
+
+- **多配置文件管理**：存储并在多个 Claude API 配置之间切换
+- **自动更新**：内置更新命令，保持工具为最新版本
+- **预配置提供商**：开箱即用地支持各种 Claude API 提供商
+- **跨平台**：支持 Linux、macOS 和 Windows
+- **简单的 CLI**：直观的命令，便于配置文件管理
+- **配置持久化**：您的设置被安全存储并自动应用
 
 ## 安装
 
@@ -49,6 +62,16 @@ go install github.com/huangdijia/ccswitch@latest
 export PATH="$HOME/go/bin:$PATH"
 ```
 
+### 包管理器
+
+**Homebrew (macOS/Linux)**
+
+即将推出...
+
+**Scoop (Windows)**
+
+即将推出...
+
 ### 从源码编译
 
 1. 克隆仓库：
@@ -71,13 +94,25 @@ make build
 ./ccswitch init
 ```
 
-### 使用 Homebrew (macOS/Linux)
-
-即将推出...
-
 ### 二进制发布版本
 
 从 [releases 页面](https://github.com/huangdijia/ccswitch/releases) 下载预编译的二进制文件。
+
+## 快速开始
+
+```bash
+# 安装 ccswitch（如果尚未安装）
+curl -sSL https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh | bash
+
+# 初始化您的配置
+ccswitch init
+
+# 列出可用的配置文件
+ccswitch profiles
+
+# 切换到某个配置文件
+ccswitch use glm
+```
 
 ## 使用方法
 
@@ -160,7 +195,7 @@ ccswitch update --force
 
 ## 配置
 
-配置文件存储在 `~/.ccswitch/ccs.json` 中。配置文件具有以下结构：
+配置文件存储在 `~/.ccswitch/ccs.json`（旧版）或 `~/.config/ccswitch/config.json`（新版）中。配置文件具有以下结构：
 
 ```json
 {
@@ -208,6 +243,43 @@ ccswitch update --force
 - **kimi-kfc**: Kimi Coding API
 - **kimi-k2**: Kimi K2 API
 
+## 安全注意事项
+
+- 您的 API 令牌以明文形式存储在配置文件中
+- 确保您的配置文件具有适当的权限（仅您可读）
+- 切勿将您的配置文件提交到版本控制
+- 考虑使用环境变量以增加安全性
+- `ccswitch update` 命令在可用时会使用校验和验证下载
+
+## 高级用法
+
+### 创建自定义配置文件
+
+您可以通过编辑配置文件来创建自定义配置文件：
+
+```bash
+# 在编辑器中打开配置文件
+nano ~/.ccswitch/ccs.json
+```
+
+在 `profiles` 部分添加新的配置文件：
+
+```json
+"my-custom-profile": {
+    "ANTHROPIC_BASE_URL": "https://api.example.com",
+    "ANTHROPIC_AUTH_TOKEN": "sk-your-token-here",
+    "ANTHROPIC_MODEL": "your-model-name",
+    "ANTHROPIC_SMALL_FAST_MODEL": "fast-model-name"
+}
+```
+
+### 环境变量
+
+CCSwitch 尊重以下环境变量：
+
+- `CCSWITCH_PROFILES_PATH`: 覆盖默认的配置文件路径
+- `CCSWITCH_SETTINGS_PATH`: 覆盖默认的 Claude 设置文件路径
+
 ## 开发
 
 ### 编译
@@ -248,6 +320,32 @@ make fmt
 make vet
 ```
 
+### 项目结构
+
+```
+ccswitch/
+├── cmd/                    # CLI 命令
+│   ├── init.go            # 初始化配置命令
+│   ├── profiles.go        # 列出配置文件命令
+│   ├── reset.go           # 重置为默认命令
+│   ├── root.go            # 根命令和设置
+│   ├── show.go            # 显示配置命令
+│   ├── update.go          # 更新工具命令
+│   └── use.go             # 使用配置文件命令
+├── internal/              # 私有应用程序代码
+│   ├── claude/            # Claude API 客户端和设置
+│   ├── config/            # 配置管理
+│   ├── jsonutil/          # JSON 工具
+│   └── osutil/            # OS 工具
+├── config/                # 默认配置
+│   ├── ccs.json           # 基本配置文件
+│   └── ccs-full.json      # 完整配置文件
+├── install.sh             # 安装脚本
+├── Makefile               # 构建自动化
+├── main.go                # 应用程序入口点
+└── tests/                 # 测试文件（如果有）
+```
+
 ### 可用的 Make 命令
 
 运行 `make help` 查看所有可用命令：
@@ -255,6 +353,15 @@ make vet
 ```bash
 make help
 ```
+
+### 代码风格
+
+我们遵循标准的 Go 约定：
+
+- 使用 `gofmt` 进行代码格式化
+- 运行 `golangci-lint` 进行额外的代码检查（可选）
+- 编写有意义的提交信息
+- 为新功能添加单元测试
 
 ## 持续集成
 
@@ -273,7 +380,35 @@ make help
 
 ## 系统要求
 
-- Go 1.21 或更高版本
+- Go 1.21 或更高版本（用于从源码编译）
+- 对于二进制安装：任何现代操作系统（Linux、macOS、Windows）
+
+## 故障排除
+
+### 常见问题
+
+1. **"command not found: ccswitch"**
+   - 确保安装目录在您的 PATH 中
+   - 尝试重启终端或运行 `source ~/.bashrc` 或 `source ~/.zshrc`
+
+2. **"permission denied"**
+   - 使二进制文件可执行：`chmod +x ~/.local/bin/ccswitch`
+   - 检查目录权限
+
+3. **"configuration file not found"**
+   - 运行 `ccswitch init` 创建初始配置
+   - 检查 `~/.ccswitch/ccs.json` 是否存在
+
+4. **"update failed"**
+   - 检查您的网络连接
+   - 尝试使用 `--force` 标志绕过版本检查
+   - 手动从发布页面下载
+
+### 获取帮助
+
+- 运行 `ccswitch --help` 获取命令行帮助
+- 查看 [GitHub Issues](https://github.com/huangdijia/ccswitch/issues) 了解已知问题
+- 如果您遇到错误，请创建新的 issue
 
 ## 许可证
 
@@ -281,8 +416,48 @@ make help
 
 ## 贡献
 
-欢迎贡献！请随时提交 Pull Request。
+我们欢迎贡献！请遵循以下步骤：
+
+1. Fork 仓库
+2. 创建功能分支：`git checkout -b feature/amazing-feature`
+3. 进行您的更改
+4. 运行测试：`make test`
+5. 格式化代码：`make fmt`
+6. 提交您的更改：`git commit -m 'Add amazing feature'`
+7. 推送到分支：`git push origin feature/amazing-feature`
+8. 打开 Pull Request
+
+### 开发指南
+
+- 遵循现有的代码风格
+- 为新功能添加测试
+- 根据需要更新文档
+- 确保在提交前所有测试都通过
+
+## 更新日志
+
+### v0.3.0-beta.2
+- 添加了在线更新功能和 `ccswitch update` 命令
+- 增强了安全性，增加了路径遍历保护
+- 改进了版本比较和更新逻辑
+- 添加了构建信息（版本、提交、构建日期）
+
+### v0.3.0-beta.1
+- 从 PHP 完全重写为 Go
+- 添加了所有原始功能和改进
+- 实现了全面的测试套件
+- 添加了 GitHub Actions CI/CD
+
+### 以前的版本
+- 最初使用 PHP 和 Symfony Console 实现
+- 基本的配置文件管理功能
 
 ## 支持
 
 如果您遇到任何问题或有疑问，请在 [GitHub 仓库](https://github.com/huangdijia/ccswitch/issues) 上提交 issue。
+
+## 致谢
+
+- 感谢所有[贡献者](https://github.com/huangdijia/ccswitch/graphs/contributors)帮助改进这个项目
+- 使用 [Cobra](https://github.com/spf13/cobra) CLI 框架构建
+- 灵感来源于对无缝 Claude Code API 配置文件管理的需求

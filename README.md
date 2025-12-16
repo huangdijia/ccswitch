@@ -1,12 +1,25 @@
 # CCSwitch
 
+[![CI](https://github.com/huangdijia/ccswitch/workflows/CI/badge.svg)](https://github.com/huangdijia/ccswitch/actions)
+[![Release](https://img.shields.io/github/release/huangdijia/ccswitch.svg)](https://github.com/huangdijia/ccswitch/releases)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 English | [中文文档](README_CN.md)
 
-A command-line tool for managing and switching between different Claude Code API profiles and configurations.
+A powerful command-line tool for managing and switching between different Claude Code API profiles and configurations.
 
 ## Description
 
 CCSwitch allows you to easily manage multiple Claude Code API configurations (profiles) and switch between them. This is useful when you need to use different API endpoints, models, or authentication tokens for different projects or environments.
+
+### Key Features
+
+- **Multi-profile Management**: Store and switch between multiple Claude API configurations
+- **Auto-update**: Built-in update command to keep the tool current
+- **Pre-configured Providers**: Support for various Claude API providers out of the box
+- **Cross-platform**: Works on Linux, macOS, and Windows
+- **Simple CLI**: Intuitive commands for easy profile management
+- **Configuration Persistence**: Your settings are safely stored and applied automatically
 
 ## Installation
 
@@ -49,6 +62,16 @@ Make sure your Go bin directory is in your PATH:
 export PATH="$HOME/go/bin:$PATH"
 ```
 
+### Package Managers
+
+**Homebrew (macOS/Linux)**
+
+Coming soon...
+
+**Scoop (Windows)**
+
+Coming soon...
+
 ### From Source
 
 1. Clone the repository:
@@ -71,13 +94,25 @@ make build
 ./ccswitch init
 ```
 
-### Using Homebrew (macOS/Linux)
-
-Coming soon...
-
 ### Binary Releases
 
 Download pre-built binaries from the [releases page](https://github.com/huangdijia/ccswitch/releases).
+
+## Quick Start
+
+```bash
+# Install ccswitch (if you haven't already)
+curl -sSL https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh | bash
+
+# Initialize your configuration
+ccswitch init
+
+# List available profiles
+ccswitch profiles
+
+# Switch to a profile
+ccswitch use glm
+```
 
 ## Usage
 
@@ -160,7 +195,7 @@ ccswitch update --force
 
 ## Configuration
 
-The profiles are stored in `~/.ccswitch/ccs.json`. The configuration file has the following structure:
+The profiles are stored in `~/.ccswitch/ccs.json` (legacy) or `~/.config/ccswitch/config.json` (new). The configuration file has the following structure:
 
 ```json
 {
@@ -208,6 +243,43 @@ The tool comes with several pre-configured profiles for different Claude API pro
 - **kimi-kfc**: Kimi Coding API
 - **kimi-k2**: Kimi K2 API
 
+## Security Considerations
+
+- Your API tokens are stored in plain text in the configuration file
+- Ensure your configuration file has appropriate permissions (readable only by you)
+- Never commit your configuration file to version control
+- Consider using environment variables for additional security
+- The `ccswitch update` command verifies downloads using checksums when available
+
+## Advanced Usage
+
+### Custom Profile Creation
+
+You can create custom profiles by editing the configuration file:
+
+```bash
+# Open the configuration file in your editor
+nano ~/.ccswitch/ccs.json
+```
+
+Add a new profile to the `profiles` section:
+
+```json
+"my-custom-profile": {
+    "ANTHROPIC_BASE_URL": "https://api.example.com",
+    "ANTHROPIC_AUTH_TOKEN": "sk-your-token-here",
+    "ANTHROPIC_MODEL": "your-model-name",
+    "ANTHROPIC_SMALL_FAST_MODEL": "fast-model-name"
+}
+```
+
+### Environment Variables
+
+CCSwitch respects the following environment variables:
+
+- `CCSWITCH_PROFILES_PATH`: Override the default profiles configuration file path
+- `CCSWITCH_SETTINGS_PATH`: Override the default Claude settings file path
+
 ## Development
 
 ### Building
@@ -248,6 +320,32 @@ Run static analysis:
 make vet
 ```
 
+### Project Structure
+
+```
+ccswitch/
+├── cmd/                    # CLI commands
+│   ├── init.go            # Initialize configuration command
+│   ├── profiles.go        # List profiles command
+│   ├── reset.go           # Reset to default command
+│   ├── root.go            # Root command and setup
+│   ├── show.go            # Show configuration command
+│   ├── update.go          # Update tool command
+│   └── use.go             # Use profile command
+├── internal/              # Private application code
+│   ├── claude/            # Claude API client and settings
+│   ├── config/            # Configuration management
+│   ├── jsonutil/          # JSON utilities
+│   └── osutil/            # OS utilities
+├── config/                # Default configurations
+│   ├── ccs.json           # Basic profile configuration
+│   └── ccs-full.json      # Complete profile configuration
+├── install.sh             # Installation script
+├── Makefile               # Build automation
+├── main.go                # Application entry point
+└── tests/                 # Test files (if any)
+```
+
 ### Available Make Targets
 
 Run `make help` to see all available targets:
@@ -255,6 +353,15 @@ Run `make help` to see all available targets:
 ```bash
 make help
 ```
+
+### Code Style
+
+We follow the standard Go conventions:
+
+- Use `gofmt` for code formatting
+- Run `golangci-lint` for additional linting (optional)
+- Write meaningful commit messages
+- Add unit tests for new features
 
 ## Continuous Integration
 
@@ -273,7 +380,35 @@ The project uses GitHub Actions for CI/CD:
 
 ## Requirements
 
-- Go 1.21 or higher
+- Go 1.21 or higher (for building from source)
+- For binary installation: any modern operating system (Linux, macOS, Windows)
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"command not found: ccswitch"**
+   - Ensure the installation directory is in your PATH
+   - Try restarting your terminal or running `source ~/.bashrc` or `source ~/.zshrc`
+
+2. **"permission denied"**
+   - Make the binary executable: `chmod +x ~/.local/bin/ccswitch`
+   - Check directory permissions
+
+3. **"configuration file not found"**
+   - Run `ccswitch init` to create the initial configuration
+   - Check if `~/.ccswitch/ccs.json` exists
+
+4. **"update failed"**
+   - Check your internet connection
+   - Try with `--force` flag to bypass version check
+   - Manually download from releases page
+
+### Getting Help
+
+- Run `ccswitch --help` for command-line help
+- Check the [GitHub Issues](https://github.com/huangdijia/ccswitch/issues) for known problems
+- Create a new issue if you encounter bugs
 
 ## License
 
@@ -281,8 +416,48 @@ This project is licensed under the MIT License.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes
+4. Run tests: `make test`
+5. Format code: `make fmt`
+6. Commit your changes: `git commit -m 'Add amazing feature'`
+7. Push to the branch: `git push origin feature/amazing-feature`
+8. Open a Pull Request
+
+### Development Guidelines
+
+- Follow the existing code style
+- Add tests for new features
+- Update documentation as needed
+- Ensure all tests pass before submitting
+
+## Changelog
+
+### v0.3.0-beta.2
+- Added online update functionality with `ccswitch update` command
+- Enhanced security with path traversal protection
+- Improved version comparison and update logic
+- Added build information (version, commit, build date)
+
+### v0.3.0-beta.1
+- Complete rewrite from PHP to Go
+- Added all original features and improvements
+- Implemented comprehensive test suite
+- Added CI/CD with GitHub Actions
+
+### Previous Versions
+- Originally implemented in PHP with Symfony Console
+- Basic profile management functionality
 
 ## Support
 
 If you encounter any issues or have questions, please file an issue on the [GitHub repository](https://github.com/huangdijia/ccswitch/issues).
+
+## Acknowledgments
+
+- Thanks to all [contributors](https://github.com/huangdijia/ccswitch/graphs/contributors) who have helped make this project better
+- Built with [Cobra](https://github.com/spf13/cobra) CLI framework
+- Inspired by the need for seamless Claude Code API profile management
