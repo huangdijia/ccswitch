@@ -77,13 +77,13 @@ detect_platform() {
 
     case "$(uname -s)" in
         Darwin)
-            platform="darwin"
+            platform="Darwin"
             ;;
         Linux)
-            platform="linux"
+            platform="Linux"
             ;;
         Windows|CYGWIN*|MINGW*|MSYS*)
-            platform="windows"
+            platform="Windows"
             ;;
         *)
             print_error "Unsupported platform: $(uname -s)"
@@ -93,13 +93,13 @@ detect_platform() {
 
     case "$(uname -m)" in
         x86_64|amd64)
-            arch="amd64"
+            arch="x86_64"
             ;;
         arm64|aarch64)
             arch="arm64"
             ;;
         arm*)
-            arch="arm"
+            arch="armv7"
             ;;
         *)
             print_error "Unsupported architecture: $(uname -m)"
@@ -138,36 +138,59 @@ download_binary() {
     local version="$1"
     local platform=$(detect_platform)
     local filename="ccswitch_${version#v}_${platform}"
+    local archive_ext="tar.gz"
 
-    # Add .exe extension for Windows
-    if [[ $platform == windows_* ]]; then
-        filename="${filename}.exe"
+    # For Windows, use zip format
+    if [[ $platform == Windows_* ]]; then
+        archive_ext="zip"
     fi
 
-    local download_url="https://github.com/${REPO}/releases/download/${version}/${filename}"
-    local temp_file=$(mktemp)
+    local archive_name="${filename}.${archive_ext}"
+    local download_url="https://github.com/${REPO}/releases/download/${version}/${archive_name}"
+    local temp_dir=$(mktemp -d)
+    local archive_path="${temp_dir}/${archive_name}"
 
     print_info "Downloading ccswitch ${version} for ${platform}..."
 
     if command -v curl >/dev/null 2>&1; then
-        curl -sSL "${download_url}" -o "${temp_file}"
+        curl -sSL "${download_url}" -o "${archive_path}"
     elif command -v wget >/dev/null 2>&1; then
-        wget -q "${download_url}" -O "${temp_file}"
+        wget -q "${download_url}" -O "${archive_path}"
     else
         print_error "Neither curl nor wget is available"
         exit 1
     fi
 
     # Verify download was successful
-    if [[ ! -f "${temp_file}" ]] || [[ ! -s "${temp_file}" ]]; then
+    if [[ ! -f "${archive_path}" ]] || [[ ! -s "${archive_path}" ]]; then
         print_error "Failed to download ccswitch binary"
         print_error "URL: ${download_url}"
         print_error "Please check your internet connection and try again"
         exit 1
     fi
 
+    # Extract the archive
+    print_info "Extracting archive..."
+    if [[ $archive_ext == "tar.gz" ]]; then
+        tar -xzf "${archive_path}" -C "${temp_dir}"
+    elif [[ $archive_ext == "zip" ]]; then
+        if command -v unzip >/dev/null 2>&1; then
+            unzip "${archive_path}" -d "${temp_dir}"
+        else
+            print_error "unzip is required for Windows archives"
+            exit 1
+        fi
+    fi
+
+    # Find the ccswitch binary in the extracted files
+    local binary_path=$(find "${temp_dir}" -name "ccswitch" -type f | head -n 1)
+    if [[ -z "${binary_path}" ]]; then
+        print_error "Failed to find ccswitch binary in archive"
+        exit 1
+    fi
+
     # Make binary executable
-    chmod +x "${temp_file}"
+    chmod +x "${binary_path}"
 
     # Move to install directory
     if [[ ! -d "${INSTALL_DIR}" ]]; then
@@ -175,13 +198,16 @@ download_binary() {
         mkdir -p "${INSTALL_DIR}"
     fi
 
-    if mv "${temp_file}" "${INSTALL_DIR}/ccswitch"; then
+    if mv "${binary_path}" "${INSTALL_DIR}/ccswitch"; then
         print_success "Binary installed to ${INSTALL_DIR}/ccswitch"
     else
         print_error "Failed to move binary to ${INSTALL_DIR}"
         print_error "You may need to run with sudo or choose a different directory"
         exit 1
     fi
+
+    # Clean up temp directory
+    rm -rf "${temp_dir}"
 }
 
 # Check if install directory is in PATH
