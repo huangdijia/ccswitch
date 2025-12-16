@@ -208,7 +208,7 @@ verify_installation() {
         echo ""
         echo "Quick start:"
         echo "  ccswitch profiles   # List all available profiles"
-        echo "  ccswitch use <name>  # Switch to a specific profile"
+        echo "  ccswitch use <name> # Switch to a specific profile"
         echo "  ccswitch init       # Initialize configuration"
         echo ""
         echo "Documentation: https://github.com/${REPO}"
