@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ccswitch installation script
-# Usage: curl https://github.com/huangdijia/ccswitch/install.sh | bash
+# Usage: curl https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh | bash
 
 set -euo pipefail
 
