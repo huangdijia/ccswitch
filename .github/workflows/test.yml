@@ -8,31 +8,53 @@ on:
 
 jobs:
   test:
-    name: Test
-    runs-on: ubuntu-latest
-    
+    name: Test - ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      max-parallel: 20
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86_64
+          - os: ubuntu-latest
+            name: Linux x86_64
+          # Linux arm64
+          # - os: ubuntu-24.04-arm64
+          #   name: Linux arm64
+          # macOS 26 arm64
+          - os: macos-26
+            name: macOS 26 arm64
+          # macOS 15 arm64
+          - os: macos-15
+            name: macOS 15 arm64
+          # macOS 14 arm64
+          - os: macos-14
+            name: macOS 14 arm64
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.21'
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.4'
 
-    - name: Run tests
-      run: go test -v -race -coverprofile=coverage.out ./...
+      - name: Run tests
+        run: go test -v -race -coverprofile=coverage.out ./...
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./coverage.out
-        flags: unittests
-        name: codecov-umbrella
-      continue-on-error: true
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.out
+          flags: unittests
+          name: codecov-${{ matrix.name }}
+        continue-on-error: true
 
-    - name: Build
-      run: make build
+      - name: Build
+        run: make build
 
-    - name: Verify binary
-      run: ./ccswitch --version
+      - name: Verify binary
+        run: ./ccswitch --version
