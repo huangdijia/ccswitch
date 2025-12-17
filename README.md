@@ -100,6 +100,10 @@ curl -sSL https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh 
 ccswitch init
 
 # List available profiles
+ccswitch list
+# or
+ccswitch ls
+# or
 ccswitch profiles
 
 # Switch to a profile
@@ -123,7 +127,7 @@ This command initializes the CCSwitch configuration. It will:
 ### List available profiles
 
 ```bash
-ccswitch profiles
+ccswitch list
 ```
 
 This displays all available profiles configured in your ccs.json file.
@@ -318,7 +322,7 @@ make vet
 ccswitch/
 ├── cmd/                    # CLI commands
 │   ├── init.go            # Initialize configuration command
-│   ├── profiles.go        # List profiles command
+│   ├── list.go            # List profiles command
 │   ├── reset.go           # Reset to default command
 │   ├── root.go            # Root command and setup
 │   ├── show.go            # Show configuration command

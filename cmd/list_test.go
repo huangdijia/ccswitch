@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestProfilesCommand(t *testing.T) {
+func TestListCommand(t *testing.T) {
 	tmpDir := t.TempDir()
 	profilesPath := filepath.Join(tmpDir, "profiles.json")
 
@@ -40,7 +40,7 @@ func TestProfilesCommand(t *testing.T) {
 
 	rootCmd := &cobra.Command{Use: "test"}
 	rootCmd.PersistentFlags().StringP("profiles", "p", profilesPath, "profiles path")
-	rootCmd.AddCommand(profilesCmd)
+	rootCmd.AddCommand(listCmd)
 
 	t.Run("list all profiles", func(t *testing.T) {
 		rootCmd.SetArgs([]string{"profiles", "-p", profilesPath})
@@ -70,7 +70,7 @@ func TestProfilesCommandWithNoProfiles(t *testing.T) {
 
 	rootCmd := &cobra.Command{Use: "test"}
 	rootCmd.PersistentFlags().StringP("profiles", "p", profilesPath, "profiles path")
-	rootCmd.AddCommand(profilesCmd)
+	rootCmd.AddCommand(listCmd)
 
 	t.Run("list with no profiles", func(t *testing.T) {
 		rootCmd.SetArgs([]string{"profiles", "-p", profilesPath})
@@ -82,21 +82,34 @@ func TestProfilesCommandWithNoProfiles(t *testing.T) {
 	})
 }
 
+// Test that command name is now 'list'
+func TestListCommandName(t *testing.T) {
+	if listCmd.Use != "list" {
+		t.Errorf("Expected command name to be 'list', got '%s'", listCmd.Use)
+	}
+}
+
 func TestProfilesCommandAliases(t *testing.T) {
 	// Test that 'ls' alias works
-	if len(profilesCmd.Aliases) == 0 {
-		t.Error("profiles command should have aliases")
+	if len(listCmd.Aliases) == 0 {
+		t.Error("list command should have aliases")
 	}
 
 	hasLsAlias := false
-	for _, alias := range profilesCmd.Aliases {
+	hasProfilesAlias := false
+	for _, alias := range listCmd.Aliases {
 		if alias == "ls" {
 			hasLsAlias = true
-			break
+		}
+		if alias == "profiles" {
+			hasProfilesAlias = true
 		}
 	}
 
 	if !hasLsAlias {
-		t.Error("profiles command should have 'ls' alias")
+		t.Error("list command should have 'ls' alias")
+	}
+	if !hasProfilesAlias {
+		t.Error("list command should have 'profiles' alias")
 	}
 }

@@ -100,6 +100,10 @@ curl -sSL https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh 
 ccswitch init
 
 # 列出可用的配置文件
+ccswitch list
+# 或
+ccswitch ls
+# 或
 ccswitch profiles
 
 # 切换到某个配置文件
@@ -123,7 +127,7 @@ ccswitch init
 ### 列出可用的配置文件
 
 ```bash
-ccswitch profiles
+ccswitch list
 ```
 
 这将显示您的 ccs.json 文件中配置的所有可用配置文件。
@@ -318,7 +322,7 @@ make vet
 ccswitch/
 ├── cmd/                    # CLI 命令
 │   ├── init.go            # 初始化配置命令
-│   ├── profiles.go        # 列出配置文件命令
+│   ├── list.go            # 列出配置文件命令
 │   ├── reset.go           # 重置为默认命令
 │   ├── root.go            # 根命令和设置
 │   ├── show.go            # 显示配置命令

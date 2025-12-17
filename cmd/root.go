@@ -46,7 +46,7 @@ func init() {
 	// Add subcommands
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(showCmd)
-	rootCmd.AddCommand(profilesCmd)
+	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(useCmd)
 	rootCmd.AddCommand(resetCmd)
 	rootCmd.AddCommand(updateCmd)

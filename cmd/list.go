@@ -8,9 +8,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var profilesCmd = &cobra.Command{
-	Use:     "profiles",
-	Aliases: []string{"ls"},
+var listCmd = &cobra.Command{
+	Use:     "list",
+	Aliases: []string{"ls", "profiles"},
 	Short:   "List all available profiles",
 	Long:    "This command allows you to list all configured Claude API profiles",
 	RunE: func(cmd *cobra.Command, args []string) error {
