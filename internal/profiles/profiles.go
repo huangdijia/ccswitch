@@ -118,3 +118,31 @@ func (p *Profiles) GetAll() []string {
 	}
 	return names
 }
+
+// Add adds a new profile to the configuration
+func (p *Profiles) Add(name string, env map[string]string, description string) error {
+	if p.Has(name) {
+		return fmt.Errorf("profile '%s' already exists", name)
+	}
+
+	p.Data.Profiles[name] = env
+	if description != "" {
+		p.Data.Descriptions[name] = description
+	}
+
+	return nil
+}
+
+// Save writes the profiles configuration to file
+func (p *Profiles) Save() error {
+	data, err := json.MarshalIndent(p.Data, "", "    ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal profiles: %w", err)
+	}
+
+	if err := os.WriteFile(p.Path, data, 0644); err != nil {
+		return fmt.Errorf("failed to write profiles file: %w", err)
+	}
+
+	return nil
+}

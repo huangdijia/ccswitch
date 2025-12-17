@@ -257,3 +257,114 @@ func TestGetAll(t *testing.T) {
 		}
 	}
 }
+
+func TestAdd(t *testing.T) {
+	tmpDir := t.TempDir()
+	config := &Config{
+		Profiles: map[string]map[string]string{
+			"existing": {"key": "value"},
+		},
+		Descriptions: map[string]string{
+			"existing": "Existing profile",
+		},
+	}
+
+	profilesPath := createTestProfilesFile(t, tmpDir, config)
+	profiles, err := New(profilesPath)
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+
+	// Test adding a new profile
+	newEnv := map[string]string{
+		"ANTHROPIC_BASE_URL": "https://api.test.com",
+		"ANTHROPIC_MODEL":    "test-model",
+	}
+	err = profiles.Add("newprofile", newEnv, "New test profile")
+	if err != nil {
+		t.Errorf("Add() error = %v", err)
+	}
+
+	// Verify the profile was added
+	if !profiles.Has("newprofile") {
+		t.Error("Add() did not add the profile")
+	}
+
+	// Verify the environment variables
+	result := profiles.Get("newprofile")
+	if result["ANTHROPIC_BASE_URL"] != "https://api.test.com" {
+		t.Errorf("Add() ANTHROPIC_BASE_URL = %v, want %v", result["ANTHROPIC_BASE_URL"], "https://api.test.com")
+	}
+
+	// Verify the description
+	if profiles.Data.Descriptions["newprofile"] != "New test profile" {
+		t.Errorf("Add() description = %v, want %v", profiles.Data.Descriptions["newprofile"], "New test profile")
+	}
+
+	// Test adding a duplicate profile
+	err = profiles.Add("existing", newEnv, "Duplicate")
+	if err == nil {
+		t.Error("Add() should return error for duplicate profile")
+	}
+}
+
+func TestSave(t *testing.T) {
+	tmpDir := t.TempDir()
+	config := &Config{
+		SettingsPath: "~/.claude/settings.json",
+		Default:      "default",
+		Profiles: map[string]map[string]string{
+			"default": {
+				"ANTHROPIC_BASE_URL": "https://api.anthropic.com",
+				"ANTHROPIC_MODEL":    "opus",
+			},
+		},
+		Descriptions: map[string]string{
+			"default": "Default profile",
+		},
+	}
+
+	profilesPath := createTestProfilesFile(t, tmpDir, config)
+	profiles, err := New(profilesPath)
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+
+	// Add a new profile
+	newEnv := map[string]string{
+		"ANTHROPIC_BASE_URL": "https://api.new.com",
+		"ANTHROPIC_MODEL":    "new-model",
+	}
+	err = profiles.Add("newprofile", newEnv, "New profile")
+	if err != nil {
+		t.Fatalf("Add() error = %v", err)
+	}
+
+	// Save the profiles
+	err = profiles.Save()
+	if err != nil {
+		t.Errorf("Save() error = %v", err)
+	}
+
+	// Load the profiles again to verify they were saved
+	profiles2, err := New(profilesPath)
+	if err != nil {
+		t.Fatalf("New() after Save() error = %v", err)
+	}
+
+	// Verify the new profile exists
+	if !profiles2.Has("newprofile") {
+		t.Error("Save() did not persist the new profile")
+	}
+
+	// Verify the environment variables
+	result := profiles2.Get("newprofile")
+	if result["ANTHROPIC_BASE_URL"] != "https://api.new.com" {
+		t.Errorf("Save() ANTHROPIC_BASE_URL = %v, want %v", result["ANTHROPIC_BASE_URL"], "https://api.new.com")
+	}
+
+	// Verify the description
+	if profiles2.Data.Descriptions["newprofile"] != "New profile" {
+		t.Errorf("Save() description = %v, want %v", profiles2.Data.Descriptions["newprofile"], "New profile")
+	}
+}
