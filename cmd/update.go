@@ -33,8 +33,9 @@ type GitHubRelease struct {
 }
 
 var updateCmd = &cobra.Command{
-	Use:   "update",
-	Short: "Update ccswitch to the latest version",
+	Use:     "update",
+	Aliases: []string{"up"},
+	Short:   "Update ccswitch to the latest version",
 	Long: `Update ccswitch to the latest version from GitHub releases.
 This command will download and install the latest version of ccswitch from GitHub.
 If you want to install a specific version, use the --version flag.`,
