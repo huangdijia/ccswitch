@@ -50,9 +50,15 @@ var addCmd = &cobra.Command{
 			}
 		}
 
-		// Check if profile already exists
+		// Check if profile already exists and force flag is not set
 		if profs.Has(profileName) && !addForce {
 			return fmt.Errorf("profile '%s' already exists. Use --force to overwrite", profileName)
+		}
+
+		// If overwriting, remove the old profile first
+		if profs.Has(profileName) && addForce {
+			delete(profs.Data.Profiles, profileName)
+			delete(profs.Data.Descriptions, profileName)
 		}
 
 		// Determine if we're in interactive mode (no flags provided)
@@ -138,13 +144,7 @@ var addCmd = &cobra.Command{
 		env["ANTHROPIC_DEFAULT_SONNET_MODEL"] = "sonnet"
 		env["ANTHROPIC_SMALL_FAST_MODEL"] = "haiku"
 
-		// If overwriting, remove the old profile first
-		if profs.Has(profileName) && addForce {
-			delete(profs.Data.Profiles, profileName)
-			delete(profs.Data.Descriptions, profileName)
-		}
-
-		// Add the profile
+		// Add the profile (now guaranteed not to exist due to earlier checks)
 		if err := profs.Add(profileName, env, description); err != nil {
 			return err
 		}
@@ -157,7 +157,6 @@ var addCmd = &cobra.Command{
 		output.Success("Profile '%s' added successfully!", profileName)
 
 		// Show profile details
-		fmt.Println("\nProfile details:")
 		output.PrintProfileDetails(env)
 
 		return nil
