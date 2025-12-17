@@ -58,12 +58,19 @@
         },
         "minimaxi-m2": {
             "ANTHROPIC_BASE_URL": "https:\/\/api.minimaxi.com\/anthropic",
-            "ANTHROPIC_AUTH_TOKEN": "",
+            "ANTHROPIC_AUTH_TOKEN": "sk-",
             "ANTHROPIC_MODEL": "MiniMax-M2",
             "ANTHROPIC_SMALL_FAST_MODEL": "MiniMax-M2",
             "ANTHROPIC_DEFAULT_SONNET_MODEL": "MiniMax-M2",
             "ANTHROPIC_DEFAULT_OPUS_MODEL": "MiniMax-M2",
             "ANTHROPIC_DEFAULT_HAIKU_MODEL": "MiniMax-M2"
+        },
+        "xiaomi-mimo": {
+            "ANTHROPIC_BASE_URL": "https://api.xiaomimimo.com/anthropic",
+            "ANTHROPIC_AUTH_TOKEN": "sk-",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "mimo-v2-flash",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "mimo-v2-flash",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "mimo-v2-flash"
         }
     },
     "descriptions": {
@@ -73,6 +80,7 @@
         "kimi-k2": "Use K2's Anthropic API",
         "kimi-kfc": "Use KFC's Anthropic API",
         "minimaxi-m2": "Use MiniMax's Anthropic API",
-        "modelscope": "Use ModelScope's Anthropic API"
+        "modelscope": "Use ModelScope's Anthropic API",
+        "xiaomi-mimo": "Use Xiaomi Mimo's Anthropic API"
     }
 }
