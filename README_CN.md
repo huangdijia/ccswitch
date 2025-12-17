@@ -1,4 +1,4 @@
-# CCSwitch
+# Claude Code Switch
 
 [![CI](https://github.com/huangdijia/ccswitch/workflows/Test/badge.svg)](https://github.com/huangdijia/ccswitch/actions)
 [![Release](https://img.shields.io/github/release/huangdijia/ccswitch.svg)](https://github.com/huangdijia/ccswitch/releases)
