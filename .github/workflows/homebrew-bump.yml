@@ -1,0 +1,175 @@
+name: Bump Homebrew Formula
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to bump (e.g., 1.2.3)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  bump-formula:
+    name: Bump Homebrew Formula
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install Homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "Deeka Wong"
+        git config --global user.email "8337659+huangdijia@users.noreply.github.com"
+
+    - name: Get version and release info
+      id: release
+      run: |
+        if [[ "${{ github.event_name }}" == "release" ]]; then
+          # Extract version from tag (remove 'v' prefix if present)
+          VERSION="${{ github.ref_name }}"
+        else
+          # Use workflow input version
+          VERSION="${{ github.event.inputs.version }}"
+        fi
+
+        echo "version=${VERSION#v}" >> $GITHUB_OUTPUT
+
+        # Use the source tarball URL for Homebrew formula
+        RELEASE_URL="https://github.com/huangdijia/ccswitch/archive/refs/tags/v${VERSION#v}.tar.gz"
+        echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
+
+        echo "Bumping version: ${VERSION#v}"
+        echo "Release URL: $RELEASE_URL"
+
+    - name: Calculate SHA256 checksum
+      run: |
+        VERSION="${{ steps.release.outputs.version }}"
+        RELEASE_URL="${{ steps.release.outputs.release_url }}"
+
+        # Download and calculate SHA256 of the source tarball
+        echo "Downloading source from: $RELEASE_URL"
+        curl -sL "$RELEASE_URL" -o source.tar.gz
+
+        SHA256=$(sha256sum source.tar.gz | awk '{print $1}')
+        echo "SHA256: $SHA256"
+        echo "sha256=$SHA256" >> $GITHUB_ENV
+
+    - name: Check if formula exists
+      id: check_formula
+      continue-on-error: true
+      run: |
+        if brew info ccswitch &>/dev/null; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "Formula exists in homebrew-core"
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "Formula does not exist in homebrew-core"
+        fi
+
+    - name: Create new formula (if not exists)
+      if: steps.check_formula.outputs.exists == 'false'
+      run: |
+        VERSION="${{ steps.release.outputs.version }}"
+
+        # Since the formula doesn't exist, we need to submit it as a new formula
+        # First, check if ccswitch is available as a tap
+        echo "Formula not found in homebrew-core"
+        echo "You may need to submit a new formula to: https://github.com/Homebrew/homebrew-core/new"
+        echo ""
+        echo "Formula template:"
+        cat > ccswitch.rb << EOF
+        class Ccswitch < Formula
+          desc "CLI tool for managing and switching between different Claude Code AI profiles"
+          homepage "https://github.com/huangdijia/ccswitch"
+          url "https://github.com/huangdijia/ccswitch/archive/refs/tags/v$VERSION.tar.gz"
+          sha256 "${{ env.sha256 }}"
+          license "MIT"
+
+          depends_on "go" => :build
+
+          def install
+            system "go", "build", *std_go_args(ldflags: "-s -w -X main.version=#{version}"), "./cmd/ccswitch"
+          end
+
+          test do
+            version_output = shell_output("#{bin}/ccswitch --version 2>&1")
+            assert_match "ccswitch version #{version}", version_output
+          end
+        end
+        EOF
+
+        cat ccswitch.rb
+
+    - name: Bump existing formula
+      if: steps.check_formula.outputs.exists == 'true'
+      id: bump_formula
+      run: |
+        VERSION="${{ steps.release.outputs.version }}"
+        RELEASE_URL="${{ steps.release.outputs.release_url }}"
+        SHA256="${{ env.sha256 }}"
+
+        echo "Updating formula to version $VERSION"
+        echo "URL: $RELEASE_URL"
+        echo "SHA256: $SHA256"
+
+        # Bump the formula in homebrew-core
+        # This will create a PR in the homebrew-core repository
+        brew bump-formula-pr \
+          --version="$VERSION" \
+          --sha256="$SHA256" \
+          --url="$RELEASE_URL" \
+          --message="Update ccswitch to version $VERSION" \
+          ccswitch 2>&1 | tee bump_output.log
+
+        # Extract PR URL from output if available
+        PR_URL=$(grep -o 'https://github.com/Homebrew/homebrew-core/pull/[0-9]*' bump_output.log || echo "")
+        if [[ -n "$PR_URL" ]]; then
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Display information and next steps
+      if: always()
+      run: |
+        echo "=== Homebrew Formula Status ==="
+
+        if brew info ccswitch &>/dev/null; then
+          echo "✅ Formula exists in homebrew-core"
+          echo "Current version:"
+          brew info ccswitch | head -n 5
+          echo ""
+          echo "📝 A PR has been created to update the formula to version ${{ steps.release.outputs.version }}"
+          if [[ -n "${{ steps.bump_formula.outputs.pr_url }}" ]]; then
+            echo "🔗 PR URL: ${{ steps.bump_formula.outputs.pr_url }}"
+          else
+            echo "🔗 PR URL: Check the 'brew bump-formula-pr' output above for the PR link"
+          fi
+          echo "⏱️  Please wait for the PR to be reviewed and merged by Homebrew maintainers"
+          echo "📊 Average review time: 2-7 days"
+        else
+          echo "❌ Formula not found in homebrew-core"
+          echo ""
+          echo "📋 First-time submission required:"
+          echo "1. Fork https://github.com/Homebrew/homebrew-core"
+          echo "2. Create a new file: Formula/ccswitch.rb"
+          echo "3. Use the template shown above"
+          echo "4. Submit a PR following: https://github.com/Homebrew/brew/blob/HEAD/docs/How-To-Open-a-Homebrew-Pull-Request.md"
+          echo ""
+          echo "⚠️  Note: First-time submissions may take longer to review"
+        fi
+
+        echo ""
+        echo "💡 After the PR is merged:"
+        echo "- Run 'brew update' to sync the latest formulas"
+        echo "- Run 'brew install ccswitch' to install"
+        echo "- Run 'brew upgrade ccswitch' to update existing installation"
