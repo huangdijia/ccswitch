@@ -16,8 +16,10 @@ CCSwitch allows you to easily manage multiple Claude Code API configurations (pr
 ### Key Features
 
 - **Multi-profile Management**: Store and switch between multiple Claude API configurations
-- **Auto-update**: Built-in update command to keep the tool current
+- **Interactive Profile Switching**: Interactive selection when no profile is specified
+- **Auto-update**: Built-in update command to keep the tool current with GitHub releases
 - **Pre-configured Providers**: Support for various Claude API providers out of the box
+- **Custom Profile Creation**: Interactive profile creation with guided prompts
 - **Cross-platform**: Works on Linux, macOS, and Windows
 - **Simple CLI**: Intuitive commands for easy profile management
 - **Configuration Persistence**: Your settings are safely stored and applied automatically
@@ -63,7 +65,6 @@ Make sure your Go bin directory is in your PATH:
 export PATH="$HOME/go/bin:$PATH"
 ```
 
-
 ### From Source
 
 1. Clone the repository:
@@ -106,8 +107,19 @@ ccswitch ls
 # or
 ccswitch profiles
 
-# Switch to a profile
+# Switch to a profile (interactive selection)
+ccswitch use
+# or specify profile name
 ccswitch use glm
+
+# Add a new custom profile
+ccswitch add myprofile --api-key "sk-..." --model "opus"
+
+# Show current settings
+ccswitch show
+
+# Show specific profile details
+ccswitch show glm
 ```
 
 ## Usage
@@ -118,27 +130,50 @@ ccswitch use glm
 ccswitch init
 ```
 
+**Options:**
+
+- `--full`: Use full configuration with all available providers
+- `--force, -f`: Force overwrite existing configuration
+
 This command initializes the CCSwitch configuration. It will:
 
-- Create a `~/.ccswitch/` directory if it doesn't exist
-- Copy the default profile configuration to `~/.ccswitch/ccs.json`
+- Create the config directory if it doesn't exist (`~/.config/ccswitch/` or `~/.ccswitch/`)
+- Download/copy the default profile configuration
 - Set up your Claude settings path
+
+### Add a new profile
+
+```bash
+ccswitch add <profile-name> [flags]
+```
+
+**Flags:**
+
+- `--api-key, -k`: Anthropic API key
+- `--base-url, -u`: Anthropic base URL (default: <https://api.anthropic.com>)
+- `--model, -m`: Anthropic model (default: opus)
+- `--description, -d`: Profile description
+- `--force, -f`: Force overwrite existing profile
+
+This command allows interactive or non-interactive profile creation. Without flags, it will prompt for input interactively.
 
 ### List available profiles
 
 ```bash
 ccswitch list
+# Aliases: ls, profiles
 ```
 
-This displays all available profiles configured in your ccs.json file.
+This displays all available profiles in a nicely formatted table showing profile name, description, URL, model, and status (default).
 
 ### Show current configuration
 
 ```bash
 ccswitch show
+ccswitch show --current
 ```
 
-This shows the currently active profile and its settings.
+This shows the currently active Claude settings.
 
 ### Show a specific profile
 
@@ -146,15 +181,19 @@ This shows the currently active profile and its settings.
 ccswitch show <profile-name>
 ```
 
-Displays the configuration for a specific profile without switching to it.
+Displays the configuration for a specific profile without switching to it. Shows the profile's description and all environment variables (with sensitive values masked).
 
 ### Switch to a profile
 
 ```bash
-ccswitch use <profile-name>
+ccswitch use [profile-name]
 ```
 
-Switches to the specified profile by updating your Claude Code settings.
+**Interactive mode**: When no profile name is specified, presents a numbered list of available profiles for selection.
+
+**Direct mode**: When a profile name is provided, directly switches to that profile.
+
+Switches to the specified profile by updating your Claude settings file with the profile's environment variables.
 
 ### Reset to default
 
@@ -162,12 +201,13 @@ Switches to the specified profile by updating your Claude Code settings.
 ccswitch reset
 ```
 
-Resets your Claude Code settings to the default profile.
+Resets your Claude settings to an empty state (removes all profile-specific settings).
 
 ### Update to latest version
 
 ```bash
 ccswitch update
+# Alias: up
 ```
 
 Updates ccswitch to the latest version from GitHub releases. This command will:
@@ -175,6 +215,8 @@ Updates ccswitch to the latest version from GitHub releases. This command will:
 - Check for the latest version on GitHub
 - Download and install the new version automatically
 - Create a backup of the current version (removed on success)
+
+The update command supports cross-platform updates (Linux, macOS, Windows) with automatic architecture detection (x86_64, arm64, armv7).
 
 **Update options:**
 
@@ -191,7 +233,7 @@ ccswitch update --force
 
 ## Configuration
 
-The profiles are stored in `~/.ccswitch/ccs.json` (legacy) or `~/.config/ccswitch/config.json` (new). The configuration file has the following structure:
+The profiles are stored in `~/.ccswitch/ccs.json`. The configuration file has the following structure:
 
 ```json
 {
@@ -199,18 +241,17 @@ The profiles are stored in `~/.ccswitch/ccs.json` (legacy) or `~/.config/ccswitc
     "default": "default",
     "profiles": {
         "default": {
+            "ANTHROPIC_API_KEY": "sk-XXXXXXXXXXXXXXXXXXXXXX",
             "ANTHROPIC_BASE_URL": "https://api.anthropic.com",
-            "ANTHROPIC_AUTH_TOKEN": "sk-your-token-here",
-            "ANTHROPIC_MODEL": "claude-3-5-sonnet-20241022",
-            "ANTHROPIC_SMALL_FAST_MODEL": "claude-3-haiku-20240307",
-            "API_TIMEOUT_MS": "300000"
-        },
-        "custom-profile": {
-            "ANTHROPIC_BASE_URL": "https://api.example.com",
-            "ANTHROPIC_AUTH_TOKEN": "sk-your-custom-token",
-            "ANTHROPIC_MODEL": "custom-model",
-            "ANTHROPIC_SMALL_FAST_MODEL": "fast-model"
+            "ANTHROPIC_MODEL": "opus",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "haiku",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "opus",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "sonnet",
+            "ANTHROPIC_SMALL_FAST_MODEL": "haiku"
         }
+    },
+    "descriptions": {
+        "default": "Use default profile"
     }
 }
 ```
@@ -219,14 +260,18 @@ The profiles are stored in `~/.ccswitch/ccs.json` (legacy) or `~/.config/ccswitc
 
 Each profile can contain the following settings:
 
+- `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN`: Your authentication token
 - `ANTHROPIC_BASE_URL`: The API base URL
-- `ANTHROPIC_AUTH_TOKEN`: Your authentication token
 - `ANTHROPIC_MODEL`: The primary model to use
 - `ANTHROPIC_SMALL_FAST_MODEL`: A smaller, faster model for quick tasks
 - `ANTHROPIC_DEFAULT_SONNET_MODEL`: Default Sonnet model variant
 - `ANTHROPIC_DEFAULT_OPUS_MODEL`: Default Opus model variant
 - `ANTHROPIC_DEFAULT_HAIKU_MODEL`: Default Haiku model variant
 - `API_TIMEOUT_MS`: API timeout in milliseconds
+
+### Descriptions
+
+The configuration also supports a `descriptions` field to store human-readable descriptions for each profile, which are displayed in the list command.
 
 ## Pre-configured Profiles
 
@@ -238,6 +283,9 @@ The tool comes with several pre-configured profiles for different Claude API pro
 - **deepseek**: DeepSeek API
 - **kimi-kfc**: Kimi Coding API
 - **kimi-k2**: Kimi K2 API
+- **modelscope**: ModelScope's API
+- **minimaxi-m2**: MiniMax's Anthropic API
+- **xiaomi-mimo**: Xiaomi Mimo's Anthropic API
 
 ## Security Considerations
 
@@ -251,7 +299,26 @@ The tool comes with several pre-configured profiles for different Claude API pro
 
 ### Custom Profile Creation
 
-You can create custom profiles by editing the configuration file:
+You can create custom profiles using the `add` command or by editing the configuration file directly:
+
+**Using the add command:**
+
+```bash
+# Interactive mode
+ccswitch add my-profile
+
+# Non-interactive mode
+ccswitch add my-profile \
+    --api-key "sk-your-token" \
+    --base-url "https://api.example.com" \
+    --model "custom-model" \
+    --description "My custom profile"
+
+# Force overwrite existing
+ccswitch add my-profile --force
+```
+
+**Manual configuration editing:**
 
 ```bash
 # Open the configuration file in your editor
@@ -266,6 +333,9 @@ Add a new profile to the `profiles` section:
     "ANTHROPIC_AUTH_TOKEN": "sk-your-token-here",
     "ANTHROPIC_MODEL": "your-model-name",
     "ANTHROPIC_SMALL_FAST_MODEL": "fast-model-name"
+},
+"descriptions": {
+    "my-custom-profile": "My custom profile description"
 }
 ```
 
@@ -275,6 +345,11 @@ CCSwitch respects the following environment variables:
 
 - `CCSWITCH_PROFILES_PATH`: Override the default profiles configuration file path
 - `CCSWITCH_SETTINGS_PATH`: Override the default Claude settings file path
+
+### Configuration File Locations
+
+- **Profiles config (legacy)**: `~/.ccswitch/ccs.json`
+- **Claude settings**: `~/.claude/settings.json` (default)
 
 ## Development
 
@@ -323,23 +398,26 @@ ccswitch/
 ├── cmd/                    # CLI commands
 │   ├── init.go            # Initialize configuration command
 │   ├── list.go            # List profiles command
-│   ├── reset.go           # Reset to default command
-│   ├── root.go            # Root command and setup
+│   ├── add.go             # Add new profile command
 │   ├── show.go            # Show configuration command
+│   ├── use.go             # Use profile command
+│   ├── reset.go           # Reset to default command
 │   ├── update.go          # Update tool command
-│   └── use.go             # Use profile command
+│   └── root.go            # Root command and setup
 ├── internal/              # Private application code
-│   ├── claude/            # Claude API client and settings
-│   ├── config/            # Configuration management
-│   ├── jsonutil/          # JSON utilities
-│   └── osutil/            # OS utilities
+│   ├── cmdutil/           # Command utility functions
+│   ├── output/            # Output formatting utilities
+│   ├── pathutil/          # Path utilities
+│   ├── profiles/          # Profile management
+│   ├── settings/          # Claude settings management
+│   └── httputil/          # HTTP utilities
 ├── config/                # Default configurations
 │   ├── ccs.json           # Basic profile configuration
 │   └── ccs-full.json      # Complete profile configuration
 ├── install.sh             # Installation script
 ├── Makefile               # Build automation
 ├── main.go                # Application entry point
-└── tests/                 # Test files (if any)
+└── cmd/*_test.go          # Unit tests for each command
 ```
 
 ### Available Make Targets
@@ -386,19 +464,30 @@ The project uses GitHub Actions for CI/CD:
 1. **"command not found: ccswitch"**
    - Ensure the installation directory is in your PATH
    - Try restarting your terminal or running `source ~/.bashrc` or `source ~/.zshrc`
+   - Check with `echo $PATH` that `~/.local/bin` or your install directory is included
 
 2. **"permission denied"**
    - Make the binary executable: `chmod +x ~/.local/bin/ccswitch`
-   - Check directory permissions
+   - Check directory permissions: `ls -la ~/.local/bin/ccswitch`
 
 3. **"configuration file not found"**
    - Run `ccswitch init` to create the initial configuration
-   - Check if `~/.ccswitch/ccs.json` exists
+   - Check both locations: `~/.ccswitch/ccs.json`
 
 4. **"update failed"**
    - Check your internet connection
    - Try with `--force` flag to bypass version check
-   - Manually download from releases page
+   - Manually download from [GitHub releases page](https://github.com/huangdijia/ccswitch/releases)
+
+5. **"no profiles available"**
+   - Ensure you initialized with `ccswitch init --full` for pre-configured profiles
+   - Check your config file has valid JSON structure
+   - Verify profiles exist with `ccswitch list`
+
+6. **"profile not found"** when switching
+   - List available profiles with `ccswitch list`
+   - Check for typos in the profile name
+   - Use tab completion if available
 
 ### Getting Help
 
@@ -432,19 +521,33 @@ We welcome contributions! Please follow these steps:
 
 ## Changelog
 
+### Current Features
+
+- **Interactive profile switching**: Use `ccswitch use` without arguments for interactive selection
+- **Profile creation**: Add profiles interactively with `ccswitch add`
+- **Smart defaults**: Missing model fields automatically filled from ANTHROPIC_MODEL
+- **Description support**: Store and display profile descriptions
+- **Masked sensitive values**: API keys are masked in output
+- **Enhanced list view**: Comprehensive table view with all profile details
+- **Cross-platform auto-update**: Single command updates from GitHub releases
+- **Multiple provider profiles**: Pre-configured profiles for 9 different providers
+
 ### v0.3.0-beta.2
+
 - Added online update functionality with `ccswitch update` command
 - Enhanced security with path traversal protection
 - Improved version comparison and update logic
 - Added build information (version, commit, build date)
 
 ### v0.3.0-beta.1
+
 - Complete rewrite from PHP to Go
 - Added all original features and improvements
 - Implemented comprehensive test suite
 - Added CI/CD with GitHub Actions
 
 ### Previous Versions
+
 - Originally implemented in PHP with Symfony Console
 - Basic profile management functionality
 

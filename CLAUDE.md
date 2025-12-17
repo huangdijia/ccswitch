@@ -92,7 +92,7 @@ ccswitch/
 
 The main configuration files are located at:
 
-- Main config: `~/.ccswitch/ccs.json` (legacy) or `~/.config/ccswitch/config.json` (new)
+- Main config: `~/.ccswitch/ccs.json`
 - Claude settings: `~/.config/claude/settings.json`
 
 ## Important Implementation Details

@@ -16,8 +16,10 @@ CCSwitch 允许您轻松管理多个 Claude Code API 配置（配置文件）并
 ### 主要特性
 
 - **多配置文件管理**：存储并在多个 Claude API 配置之间切换
-- **自动更新**：内置更新命令，保持工具为最新版本
+- **交互式配置切换**：不指定配置文件时提供交互式选择
+- **自动更新**：内置更新命令，保持工具为最新版本（支持 GitHub 发布）
 - **预配置提供商**：开箱即用地支持各种 Claude API 提供商
+- **自定义配置创建**：带有引导提示的交互式配置创建
 - **跨平台**：支持 Linux、macOS 和 Windows
 - **简单的 CLI**：直观的命令，便于配置文件管理
 - **配置持久化**：您的设置被安全存储并自动应用
@@ -63,7 +65,6 @@ go install github.com/huangdijia/ccswitch@latest
 export PATH="$HOME/go/bin:$PATH"
 ```
 
-
 ### 从源码编译
 
 1. 克隆仓库：
@@ -106,8 +107,19 @@ ccswitch ls
 # 或
 ccswitch profiles
 
-# 切换到某个配置文件
+# 切换到某个配置文件（交互式选择）
+ccswitch use
+# 或指定配置文件名
 ccswitch use glm
+
+# 添加新的自定义配置文件
+ccswitch add myprofile --api-key "sk-..." --model "opus"
+
+# 显示当前设置
+ccswitch show
+
+# 显示特定配置文件详情
+ccswitch show glm
 ```
 
 ## 使用方法
@@ -118,27 +130,50 @@ ccswitch use glm
 ccswitch init
 ```
 
+**选项：**
+
+- `--full`: 使用包含所有可用提供商的完整配置
+- `--force, -f`: 强制覆盖现有配置
+
 此命令初始化 CCSwitch 配置。它将：
 
-- 如果不存在则创建 `~/.ccswitch/` 目录
-- 将默认配置文件复制到 `~/.ccswitch/ccs.json`
+- 如果不存在则创建配置目录（`~/.config/ccswitch/` 或 `~/.ccswitch/`）
+- 下载/复制默认配置文件
 - 设置您的 Claude 设置路径
+
+### 添加配置文件
+
+```bash
+ccswitch add <配置文件名> [flags]
+```
+
+**标志：**
+
+- `--api-key, -k`: Anthropic API 密钥
+- `--base-url, -u`: Anthropic 基础 URL (默认: <https://api.anthropic.com>)
+- `--model, -m`: Anthropic 模型 (默认: opus)
+- `--description, -d`: 配置文件描述
+- `--force, -f`: 强制覆盖现有配置文件
+
+此命令支持交互式或非交互式配置文件创建。没有标志时，会提示输入。
 
 ### 列出可用的配置文件
 
 ```bash
 ccswitch list
+# 别名: ls, profiles
 ```
 
-这将显示您的 ccs.json 文件中配置的所有可用配置文件。
+这会以格式化的表格显示所有可用配置文件，包括配置文件名称、描述、URL、模型和状态（默认）。
 
 ### 显示当前配置
 
 ```bash
 ccswitch show
+ccswitch show --current
 ```
 
-这将显示当前活动的配置文件及其设置。
+这将显示当前激活的 Claude 设置。
 
 ### 显示特定配置文件
 
@@ -146,15 +181,19 @@ ccswitch show
 ccswitch show <配置文件名>
 ```
 
-显示特定配置文件的配置，而不切换到该配置文件。
+显示特定配置文件的配置，而不切换到该配置文件。显示配置文件的描述和所有环境变量（敏感值会被掩码）。
 
 ### 切换到某个配置文件
 
 ```bash
-ccswitch use <配置文件名>
+ccswitch use [配置文件名]
 ```
 
-通过更新您的 Claude Code 设置切换到指定的配置文件。
+**交互模式**：当未指定配置文件名时，显示可用配置文件的编号列表供选择。
+
+**直接模式**：当提供配置文件名时，直接切换到该配置文件。
+
+通过使用配置文件的配置文件环境变量更新您的 Claude 设置来切换配置文件。
 
 ### 重置为默认配置
 
@@ -162,19 +201,22 @@ ccswitch use <配置文件名>
 ccswitch reset
 ```
 
-将您的 Claude Code 设置重置为默认配置文件。
+将您的 Claude 设置重置为空状态（移除所有特定于配置文件的设置）。
 
 ### 更新到最新版本
 
 ```bash
 ccswitch update
+# 别名: up
 ```
 
-从 GitHub releases 更新 ccswitch 到最新版本。此命令将：
+从 GitHub 发布更新 ccswitch 到最新版本。此命令将：
 
 - 检查 GitHub 上的最新版本
 - 自动下载并安装新版本
 - 创建当前版本的备份（成功后删除）
+
+更新命令支持跨平台更新（Linux、macOS、Windows），支持自动架构检测（x86_64、arm64、armv7）。
 
 **更新选项：**
 
@@ -185,13 +227,13 @@ ccswitch update
 # 更新到特定版本
 ccswitch update --version v1.0.0
 
-# 即使已经是最新版本也强制更新
+# 即使已经是最新的版本也强制更新
 ccswitch update --force
 ```
 
 ## 配置
 
-配置文件存储在 `~/.ccswitch/ccs.json`（旧版）或 `~/.config/ccswitch/config.json`（新版）中。配置文件具有以下结构：
+配置文件存储在 `~/.ccswitch/ccs.json` 中。配置文件具有以下结构：
 
 ```json
 {
@@ -199,18 +241,17 @@ ccswitch update --force
     "default": "default",
     "profiles": {
         "default": {
+            "ANTHROPIC_API_KEY": "sk-XXXXXXXXXXXXXXXXXXXXXX",
             "ANTHROPIC_BASE_URL": "https://api.anthropic.com",
-            "ANTHROPIC_AUTH_TOKEN": "sk-your-token-here",
-            "ANTHROPIC_MODEL": "claude-3-5-sonnet-20241022",
-            "ANTHROPIC_SMALL_FAST_MODEL": "claude-3-haiku-20240307",
-            "API_TIMEOUT_MS": "300000"
-        },
-        "custom-profile": {
-            "ANTHROPIC_BASE_URL": "https://api.example.com",
-            "ANTHROPIC_AUTH_TOKEN": "sk-your-custom-token",
-            "ANTHROPIC_MODEL": "custom-model",
-            "ANTHROPIC_SMALL_FAST_MODEL": "fast-model"
+            "ANTHROPIC_MODEL": "opus",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "haiku",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "opus",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "sonnet",
+            "ANTHROPIC_SMALL_FAST_MODEL": "haiku"
         }
+    },
+    "descriptions": {
+        "default": "Use default profile"
     }
 }
 ```
@@ -219,14 +260,18 @@ ccswitch update --force
 
 每个配置文件可以包含以下设置：
 
+- `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`: 您的身份验证令牌
 - `ANTHROPIC_BASE_URL`: API 基础 URL
-- `ANTHROPIC_AUTH_TOKEN`: 您的身份验证令牌
 - `ANTHROPIC_MODEL`: 要使用的主要模型
 - `ANTHROPIC_SMALL_FAST_MODEL`: 用于快速任务的较小、更快的模型
 - `ANTHROPIC_DEFAULT_SONNET_MODEL`: 默认 Sonnet 模型版本
 - `ANTHROPIC_DEFAULT_OPUS_MODEL`: 默认 Opus 模型版本
 - `ANTHROPIC_DEFAULT_HAIKU_MODEL`: 默认 Haiku 模型版本
 - `API_TIMEOUT_MS`: API 超时时间（毫秒）
+
+### 描述
+
+配置文件还支持 `descriptions` 字段来存储每个配置文件的人类可读描述，这些描述会显示在列表命令中。
 
 ## 预配置的配置文件
 
@@ -238,6 +283,9 @@ ccswitch update --force
 - **deepseek**: DeepSeek API
 - **kimi-kfc**: Kimi Coding API
 - **kimi-k2**: Kimi K2 API
+- **modelscope**: ModelScope 的 API
+- **minimaxi-m2**: MiniMax 的 Anthropic API
+- **xiaomi-mimo**: Xiaomi Mimo 的 Anthropic API
 
 ## 安全注意事项
 
@@ -251,7 +299,26 @@ ccswitch update --force
 
 ### 创建自定义配置文件
 
-您可以通过编辑配置文件来创建自定义配置文件：
+您可以使用 `add` 命令或直接编辑配置文件来创建自定义配置文件：
+
+**使用 add 命令：**
+
+```bash
+# 交互式模式
+ccswitch add my-profile
+
+# 非交互式模式
+ccswitch add my-profile \
+    --api-key "sk-your-token" \
+    --base-url "https://api.example.com" \
+    --model "custom-model" \
+    --description "My custom profile"
+
+# 强制覆盖现有配置
+ccswitch add my-profile --force
+```
+
+**手动配置编辑：**
 
 ```bash
 # 在编辑器中打开配置文件
@@ -266,6 +333,9 @@ nano ~/.ccswitch/ccs.json
     "ANTHROPIC_AUTH_TOKEN": "sk-your-token-here",
     "ANTHROPIC_MODEL": "your-model-name",
     "ANTHROPIC_SMALL_FAST_MODEL": "fast-model-name"
+},
+"descriptions": {
+    "my-custom-profile": "My custom profile description"
 }
 ```
 
@@ -275,6 +345,11 @@ CCSwitch 尊重以下环境变量：
 
 - `CCSWITCH_PROFILES_PATH`: 覆盖默认的配置文件路径
 - `CCSWITCH_SETTINGS_PATH`: 覆盖默认的 Claude 设置文件路径
+
+### 配置文件位置
+
+- **配置文件 (旧版本)**: `~/.ccswitch/ccs.json`
+- **Claude 设置**: `~/.claude/settings.json` (默认)
 
 ## 开发
 
@@ -323,23 +398,26 @@ ccswitch/
 ├── cmd/                    # CLI 命令
 │   ├── init.go            # 初始化配置命令
 │   ├── list.go            # 列出配置文件命令
-│   ├── reset.go           # 重置为默认命令
-│   ├── root.go            # 根命令和设置
+│   ├── add.go             # 添加新配置文件命令
 │   ├── show.go            # 显示配置命令
+│   ├── use.go             # 使用配置文件命令
+│   ├── reset.go           # 重置为默认命令
 │   ├── update.go          # 更新工具命令
-│   └── use.go             # 使用配置文件命令
+│   └── root.go            # 根命令和设置
 ├── internal/              # 私有应用程序代码
-│   ├── claude/            # Claude API 客户端和设置
-│   ├── config/            # 配置管理
-│   ├── jsonutil/          # JSON 工具
-│   └── osutil/            # OS 工具
+│   ├── cmdutil/           # 命令工具函数
+│   ├── output/            # 输出格式化工具
+│   ├── pathutil/          # 路径工具
+│   ├── profiles/          # 配置文件管理
+│   ├── settings/          # Claude 设置管理
+│   └── httputil/          # HTTP 工具
 ├── config/                # 默认配置
 │   ├── ccs.json           # 基本配置文件
 │   └── ccs-full.json      # 完整配置文件
 ├── install.sh             # 安装脚本
 ├── Makefile               # 构建自动化
 ├── main.go                # 应用程序入口点
-└── tests/                 # 测试文件（如果有）
+└── cmd/*_test.go          # 每个命令的单元测试
 ```
 
 ### 可用的 Make 命令
@@ -386,19 +464,30 @@ make help
 1. **"command not found: ccswitch"**
    - 确保安装目录在您的 PATH 中
    - 尝试重启终端或运行 `source ~/.bashrc` 或 `source ~/.zshrc`
+   - 使用 `echo $PATH` 检查 `~/.local/bin` 或安装目录是否包含在路径中
 
 2. **"permission denied"**
    - 使二进制文件可执行：`chmod +x ~/.local/bin/ccswitch`
-   - 检查目录权限
+   - 检查目录权限：`ls -la ~/.local/bin/ccswitch`
 
 3. **"configuration file not found"**
    - 运行 `ccswitch init` 创建初始配置
-   - 检查 `~/.ccswitch/ccs.json` 是否存在
+   - 检查两个位置：`~/.ccswitch/ccs.json`
 
 4. **"update failed"**
    - 检查您的网络连接
    - 尝试使用 `--force` 标志绕过版本检查
-   - 手动从发布页面下载
+   - 手动从 [GitHub 发布页面](https://github.com/huangdijia/ccswitch/releases) 下载
+
+5. **"no profiles available"**
+   - 确保您使用 `ccswitch init --full` 进行初始化以获取预配置配置文件
+   - 检查您的配置文件是否具有有效的 JSON 结构
+   - 使用 `ccswitch list` 验证配置文件是否存在
+
+6. **"profile not found"** 在切换时
+   - 使用 `ccswitch list` 列出可用配置文件
+   - 检查配置文件名称是否有拼写错误
+   - 如果可用，使用 Tab 补全
 
 ### 获取帮助
 
@@ -432,19 +521,33 @@ make help
 
 ## 更新日志
 
+### 当前功能
+
+- **交互式配置切换**：使用 `ccswitch use` 不带参数进行交互式选择
+- **配置文件创建**：使用 `ccswitch add` 交互式添加配置文件
+- **智能默认值**：缺少的模型字段自动从 ANTHROPIC_MODEL 填充
+- **描述支持**：存储和显示配置文件描述
+- **敏感值掩码**：API 密钥在输出中被掩码
+- **增强的列表视图**：包含所有配置文件详细信息的全面表格视图
+- **跨平台自动更新**：单个命令从 GitHub 发布进行更新
+- **多提供商配置文件**：9 个不同提供商的预配置配置文件
+
 ### v0.3.0-beta.2
+
 - 添加了在线更新功能和 `ccswitch update` 命令
 - 增强了安全性，增加了路径遍历保护
 - 改进了版本比较和更新逻辑
 - 添加了构建信息（版本、提交、构建日期）
 
 ### v0.3.0-beta.1
+
 - 从 PHP 完全重写为 Go
 - 添加了所有原始功能和改进
 - 实现了全面的测试套件
 - 添加了 GitHub Actions CI/CD
 
 ### 以前的版本
+
 - 最初使用 PHP 和 Symfony Console 实现
 - 基本的配置文件管理功能
 
