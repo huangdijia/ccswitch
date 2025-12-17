@@ -22,18 +22,15 @@ jobs:
           # Linux arm64
           - os: ubuntu-24.04-arm64
             name: Linux arm64
+          # macOS 26 arm64
+          - os: macos-26
+            name: macOS 26 arm64
           # macOS 15 arm64
           - os: macos-15
             name: macOS 15 arm64
           # macOS 14 arm64
           - os: macos-14
             name: macOS 14 arm64
-          # macOS 14 x86_64 (using macos-13 which is Intel-based)
-          - os: macos-13
-            name: macOS 14 x86_64
-          # macOS 26 arm64
-          - os: macos-26
-            name: macOS 26 arm64
 
     steps:
       - name: Checkout code
