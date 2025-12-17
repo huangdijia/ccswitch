@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/huangdijia/ccswitch/internal/profiles"
+	"github.com/huangdijia/ccswitch/internal/cmdutil"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +16,7 @@ var profilesCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		profilesPath := cmd.Flag("profiles").Value.String()
 
-		profs, err := profiles.New(profilesPath)
+		profs, err := cmdutil.LoadProfiles(profilesPath)
 		if err != nil {
 			return err
 		}

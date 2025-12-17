@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
+
+	"github.com/huangdijia/ccswitch/internal/pathutil"
 )
 
 // ClaudeSettings represents the Claude settings.json file
@@ -18,13 +19,11 @@ type ClaudeSettings struct {
 // New creates a new ClaudeSettings instance
 func New(path string) (*ClaudeSettings, error) {
 	// Expand home directory
-	if strings.HasPrefix(path, "~") {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return nil, err
-		}
-		path = filepath.Join(home, path[1:])
+	expandedPath, err := pathutil.ExpandHome(path)
+	if err != nil {
+		return nil, err
 	}
+	path = expandedPath
 
 	settings := &ClaudeSettings{
 		Path: path,
@@ -33,9 +32,9 @@ func New(path string) (*ClaudeSettings, error) {
 	}
 
 	// Create file if it doesn't exist
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if !pathutil.FileExists(path) {
 		dir := filepath.Dir(path)
-		if err := os.MkdirAll(dir, 0755); err != nil {
+		if err := pathutil.EnsureDir(dir, 0755); err != nil {
 			return nil, err
 		}
 		if err := settings.Write(); err != nil {

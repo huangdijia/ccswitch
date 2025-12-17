@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"testing"
+
+	"github.com/huangdijia/ccswitch/internal/output"
 )
 
 func TestMaskSensitiveValue(t *testing.T) {
@@ -49,9 +51,9 @@ func TestMaskSensitiveValue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := maskSensitiveValue(tt.input)
+			result := output.MaskSensitiveValue(tt.input)
 			if result != tt.expected {
-				t.Errorf("maskSensitiveValue(%q) = %q, want %q", tt.input, result, tt.expected)
+				t.Errorf("output.MaskSensitiveValue(%q) = %q, want %q", tt.input, result, tt.expected)
 			}
 		})
 	}

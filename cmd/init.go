@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/huangdijia/ccswitch/internal/httputil"
+	"github.com/huangdijia/ccswitch/internal/output"
+	"github.com/huangdijia/ccswitch/internal/pathutil"
 	"github.com/spf13/cobra"
 )
 
@@ -30,8 +31,8 @@ var initCmd = &cobra.Command{
 		}
 
 		// Create config directory if it doesn't exist
-		if _, err := os.Stat(configDir); os.IsNotExist(err) {
-			if err := os.MkdirAll(configDir, 0755); err != nil {
+		if !pathutil.FileExists(configDir) {
+			if err := pathutil.EnsureDir(configDir, 0755); err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
 			fmt.Printf("Created directory: %s\n", configDir)
@@ -80,19 +81,10 @@ var initCmd = &cobra.Command{
 			githubURL := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/config/%s", repo, branch, configFile)
 
 			fmt.Printf("Downloading configuration from GitHub...\n")
-			resp, err := http.Get(githubURL)
-			if err != nil {
-				return fmt.Errorf("failed to download configuration from GitHub: %w", err)
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("GitHub API returned status: %s", resp.Status)
-			}
-
-			configContent, err = io.ReadAll(resp.Body)
-			if err != nil {
-				return fmt.Errorf("failed to read downloaded configuration: %w", err)
+			var downloadErr error
+			configContent, downloadErr = httputil.FetchBytes(githubURL)
+			if downloadErr != nil {
+				return fmt.Errorf("failed to download configuration from GitHub: %w", downloadErr)
 			}
 			foundPath = githubURL
 		}
@@ -106,7 +98,7 @@ var initCmd = &cobra.Command{
 		if initFull {
 			configType = "full"
 		}
-		fmt.Printf("✓ %s configuration file created successfully: %s\n", configType, profilesPath)
+		output.Success("%s configuration file created successfully: %s", configType, profilesPath)
 		if strings.HasPrefix(foundPath, "http") {
 			fmt.Printf("  (downloaded from: %s)\n", foundPath)
 		} else {

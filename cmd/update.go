@@ -3,15 +3,14 @@ package cmd
 import (
 	"archive/tar"
 	"compress/gzip"
-	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/huangdijia/ccswitch/internal/httputil"
 	"github.com/spf13/cobra"
 )
 
@@ -125,21 +124,10 @@ func getRelease(version string) (*GitHubRelease, error) {
 
 // fetchRelease fetches release information from GitHub API
 func fetchRelease(url string) (*GitHubRelease, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("GitHub API returned status: %s", resp.Status)
-	}
-
 	var release GitHubRelease
-	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+	if err := httputil.FetchJSON(url, &release); err != nil {
 		return nil, err
 	}
-
 	return &release, nil
 }
 
@@ -288,24 +276,7 @@ func downloadAndInstall(url, exePath string) error {
 
 // downloadFile downloads a file from a URL
 func downloadFile(url, filepath string) error {
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("server returned status: %s", resp.Status)
-	}
-
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, resp.Body)
-	return err
+	return httputil.DownloadFile(url, filepath)
 }
 
 // extractTarGz extracts a tar.gz archive

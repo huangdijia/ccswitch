@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/huangdijia/ccswitch/internal/profiles"
-	"github.com/huangdijia/ccswitch/internal/settings"
+	"github.com/huangdijia/ccswitch/internal/cmdutil"
+	"github.com/huangdijia/ccswitch/internal/output"
+	"github.com/huangdijia/ccswitch/internal/pathutil"
 	"github.com/spf13/cobra"
 )
 
@@ -15,26 +13,18 @@ var resetCmd = &cobra.Command{
 	Long:  "This command resets your Claude settings to their default state",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		settingsPath := cmd.Flag("settings").Value.String()
+		profilesPath := cmd.Flag("profiles").Value.String()
 
-		// If no settings path provided, try to get it from profiles
+		// If no settings path provided, try to resolve it
 		if settingsPath == "" {
-			homeDir, err := os.UserHomeDir()
-			if err == nil {
-				profilesPath := homeDir + "/.ccswitch/ccs.json"
-				if _, err := os.Stat(profilesPath); err == nil {
-					profs, err := profiles.New(profilesPath)
-					if err == nil {
-						settingsPath = profs.GetSettingsPath()
-					}
-				}
-			}
+			settingsPath = cmdutil.ResolveSettingsPath(settingsPath, profilesPath)
 		}
 
 		if settingsPath == "" {
-			settingsPath = "~/.claude/settings.json"
+			settingsPath = pathutil.DefaultSettingsPath()
 		}
 
-		currentSettings, err := settings.New(settingsPath)
+		currentSettings, err := cmdutil.LoadSettings(settingsPath)
 		if err != nil {
 			return err
 		}
@@ -48,7 +38,7 @@ var resetCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("✓ Settings have been reset to default")
+		output.Success("Settings have been reset to default")
 
 		return nil
 	},

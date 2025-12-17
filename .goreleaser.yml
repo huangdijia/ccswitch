@@ -49,7 +49,6 @@ archives:
       - README.md
       - README_CN.md
       - LICENSE
-      - config/*
 
 checksum:
   name_template: 'checksums.txt'

@@ -28,6 +28,7 @@ func TestResetCommand(t *testing.T) {
 
 	rootCmd := &cobra.Command{Use: "test"}
 	rootCmd.PersistentFlags().StringP("settings", "s", settingsPath, "settings path")
+	rootCmd.PersistentFlags().StringP("profiles", "p", "", "profiles path")
 	rootCmd.AddCommand(resetCmd)
 
 	t.Run("reset settings", func(t *testing.T) {
@@ -96,6 +97,7 @@ func TestResetCommandWithProfilesPath(t *testing.T) {
 
 	rootCmd := &cobra.Command{Use: "test"}
 	rootCmd.PersistentFlags().StringP("settings", "s", "", "settings path")
+	rootCmd.PersistentFlags().StringP("profiles", "p", profilesPath, "profiles path")
 	rootCmd.AddCommand(resetCmd)
 
 	t.Run("reset with profiles path discovery", func(t *testing.T) {
