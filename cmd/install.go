@@ -137,8 +137,8 @@ your local configuration.`,
 			env["ANTHROPIC_AUTH_TOKEN"] = authToken
 		}
 
-		// Remove old profile if it exists and force flag is set
-		if profs.Has(profileName) && installForce {
+		// If overwriting, remove the old profile first
+		if installForce && profs.Has(profileName) {
 			delete(profs.Data.Profiles, profileName)
 			delete(profs.Data.Descriptions, profileName)
 		}
