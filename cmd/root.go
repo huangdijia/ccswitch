@@ -51,6 +51,7 @@ func init() {
 	rootCmd.AddCommand(useCmd)
 	rootCmd.AddCommand(resetCmd)
 	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(installCmd)
 }
 
 // SetVersion sets the application version, commit and build date
