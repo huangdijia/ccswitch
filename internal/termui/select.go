@@ -67,7 +67,8 @@ func SelectString(cfg SelectConfig) (string, error) {
 
 		// Prompt line.
 		fmt.Fprint(cfg.Out, "\x1b[2K\r")
-		fmt.Fprintln(cfg.Out, cfg.Prompt)
+		fmt.Fprint(cfg.Out, cfg.Prompt)
+		fmt.Fprint(cfg.Out, "\r\n")
 
 		// Items.
 		for i, item := range cfg.Items {
@@ -76,12 +77,14 @@ func SelectString(cfg SelectConfig) (string, error) {
 				line = "\x1b[7m> " + item + "\x1b[0m"
 			}
 			fmt.Fprint(cfg.Out, "\x1b[2K\r")
-			fmt.Fprintln(cfg.Out, line)
+			fmt.Fprint(cfg.Out, line)
+			fmt.Fprint(cfg.Out, "\r\n")
 		}
 
 		// Hint line.
 		fmt.Fprint(cfg.Out, "\x1b[2K\r")
-		fmt.Fprintln(cfg.Out, cfg.Hint)
+		fmt.Fprint(cfg.Out, cfg.Hint)
+		fmt.Fprint(cfg.Out, "\r\n")
 
 		renderedLines = 1 + len(cfg.Items) + 1
 	}
@@ -151,7 +154,7 @@ func SelectString(cfg SelectConfig) (string, error) {
 
 		switch b {
 		case '\r', '\n':
-			fmt.Fprintln(cfg.Out)
+			fmt.Fprint(cfg.Out, "\r\n")
 			return cfg.Items[selected], nil
 		case 3: // Ctrl+C (in raw mode)
 			return "", ErrCanceled
