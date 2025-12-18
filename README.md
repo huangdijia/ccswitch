@@ -189,7 +189,7 @@ Displays the configuration for a specific profile without switching to it. Shows
 ccswitch use [profile-name]
 ```
 
-**Interactive mode**: When no profile name is specified, presents a numbered list of available profiles for selection.
+**Interactive mode**: When no profile name is specified, opens a keyboard-driven selector (use ↑/↓ and Enter).
 
 **Direct mode**: When a profile name is provided, directly switches to that profile.
 

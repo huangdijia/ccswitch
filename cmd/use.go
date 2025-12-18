@@ -2,9 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"sort"
 
 	"github.com/huangdijia/ccswitch/internal/cmdutil"
 	"github.com/huangdijia/ccswitch/internal/output"
+	"github.com/huangdijia/ccswitch/internal/termui"
 	"github.com/spf13/cobra"
 )
 
@@ -23,33 +26,48 @@ var useCmd = &cobra.Command{
 
 		var profileName string
 		if len(args) == 0 {
-			// Interactive selection when no profile is specified
+			// Interactive selection when no profile is specified.
 			availableProfiles := profs.GetAll()
 			if len(availableProfiles) == 0 {
 				return fmt.Errorf("no profiles available")
 			}
 
-			fmt.Println("Available profiles:")
+			sort.Strings(availableProfiles)
+
+			// Default selection: default profile (if exists), else first.
+			defaultIndex := 0
+			defaultProfile := profs.Default()
 			for i, name := range availableProfiles {
-				fmt.Printf("  %d. %s\n", i+1, name)
+				if name == defaultProfile {
+					defaultIndex = i
+					break
+				}
 			}
 
-			fmt.Print("\nSelect profile (enter number or name): ")
-			var input string
-			_, err := fmt.Scanln(&input)
+			inFile, inOK := cmd.InOrStdin().(*os.File)
+			outFile, outOK := cmd.OutOrStdout().(*os.File)
+			if !inOK || !outOK {
+				return fmt.Errorf("no profile specified (use 'ccswitch use <profile>')")
+			}
+
+			selected, err := termui.SelectString(termui.SelectConfig{
+				In:           inFile,
+				Out:          outFile,
+				Prompt:       "Select profile:",
+				Hint:         "↑/↓ to move, Enter to select, q to cancel",
+				Items:        availableProfiles,
+				DefaultIndex: defaultIndex,
+			})
 			if err != nil {
-				return fmt.Errorf("invalid selection")
+				if err == termui.ErrCanceled {
+					return nil
+				}
+				if err == termui.ErrNotTerminal {
+					return fmt.Errorf("no profile specified (use 'ccswitch use <profile>')")
+				}
+				return err
 			}
-
-			// Try to parse as number first
-			var index int
-			_, err = fmt.Sscanf(input, "%d", &index)
-			if err == nil && index >= 1 && index <= len(availableProfiles) {
-				profileName = availableProfiles[index-1]
-			} else {
-				// Treat as profile name
-				profileName = input
-			}
+			profileName = selected
 		} else {
 			profileName = args[0]
 		}
