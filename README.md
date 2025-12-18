@@ -137,7 +137,7 @@ ccswitch init
 
 This command initializes the CCSwitch configuration. It will:
 
-- Create the config directory if it doesn't exist (`~/.config/ccswitch/` or `~/.ccswitch/`)
+- Create the config directory if it doesn't exist (`~/.ccswitch/`)
 - Download/copy the default profile configuration
 - Set up your Claude settings path
 

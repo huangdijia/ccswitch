@@ -84,7 +84,7 @@ ccswitch/
 
 1. **Error Handling**: All functions return errors explicitly, use `fmt.Errorf` for error wrapping
 2. **JSON Handling**: Use `json.RawMessage` for extensible JSON fields in configurations
-3. **File Paths**: Configuration files stored in `~/.config/ccswitch/`
+3. **File Paths**: Configuration files stored in `~/.ccswitch/`
 4. **Environment Variables**: Claude settings exported as `CLAUDE_*` environment variables
 5. **Testing**: Each command package has corresponding `_test.go` files with unit tests
 

@@ -137,7 +137,7 @@ ccswitch init
 
 此命令初始化 CCSwitch 配置。它将：
 
-- 如果不存在则创建配置目录（`~/.config/ccswitch/` 或 `~/.ccswitch/`）
+- 如果不存在则创建配置目录（`~/.ccswitch/`）
 - 下载/复制默认配置文件
 - 设置您的 Claude 设置路径
 
