@@ -100,6 +100,9 @@ curl -sSL https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh 
 # Initialize your configuration
 ccswitch init
 
+# Quick way: Install a pre-configured profile interactively
+ccswitch install
+
 # List available profiles
 ccswitch list
 # or
@@ -156,6 +159,42 @@ ccswitch add <profile-name> [flags]
 - `--force, -f`: Force overwrite existing profile
 
 This command allows interactive or non-interactive profile creation. Without flags, it will prompt for input interactively.
+
+### Install a profile from full configuration
+
+```bash
+ccswitch install [flags]
+```
+
+**Flags:**
+
+- `--force, -f`: Force overwrite existing profile
+
+This command provides an interactive way to install pre-configured profiles from the full configuration (ccs-full.json). It will:
+
+1. Download the full configuration from GitHub to a temporary directory
+2. Present an interactive selection menu with all available profiles
+3. Prompt for your authentication token (with masked display)
+4. Save the selected profile to your local configuration
+5. Automatically clean up temporary files
+
+**Interactive workflow:**
+
+```bash
+ccswitch install
+# Downloading full configuration from GitHub...
+# Select profile to install: (use ↑/↓, Enter to select, q to cancel)
+# > default
+#   anyrouter
+#   glm
+#   deepseek
+#   kimi-kfc
+#   ...
+# Enter authentication token for profile 'glm': ****
+# ✓ Profile 'glm' installed successfully!
+```
+
+This is the easiest way to quickly set up profiles from the extensive list of pre-configured API providers.
 
 ### List available profiles
 

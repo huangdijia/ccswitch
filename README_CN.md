@@ -100,6 +100,9 @@ curl -sSL https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh 
 # 初始化您的配置
 ccswitch init
 
+# 快速方式：交互式安装预配置的配置文件
+ccswitch install
+
 # 列出可用的配置文件
 ccswitch list
 # 或
@@ -156,6 +159,42 @@ ccswitch add <配置文件名> [flags]
 - `--force, -f`: 强制覆盖现有配置文件
 
 此命令支持交互式或非交互式配置文件创建。没有标志时，会提示输入。
+
+### 从完整配置安装配置文件
+
+```bash
+ccswitch install [flags]
+```
+
+**标志：**
+
+- `--force, -f`: 强制覆盖现有配置文件
+
+此命令提供了一种交互式方式来从完整配置（ccs-full.json）安装预配置的配置文件。它将：
+
+1. 从 GitHub 下载完整配置到临时目录
+2. 显示包含所有可用配置文件的交互式选择菜单
+3. 提示输入您的身份验证令牌（带掩码显示）
+4. 将选定的配置文件保存到本地配置
+5. 自动清理临时文件
+
+**交互式工作流程：**
+
+```bash
+ccswitch install
+# Downloading full configuration from GitHub...
+# Select profile to install: (使用 ↑/↓ 移动，Enter 选择，q 取消)
+# > default
+#   anyrouter
+#   glm
+#   deepseek
+#   kimi-kfc
+#   ...
+# Enter authentication token for profile 'glm': ****
+# ✓ Profile 'glm' installed successfully!
+```
+
+这是从大量预配置 API 提供商列表中快速设置配置文件的最简单方法。
 
 ### 列出可用的配置文件
 
