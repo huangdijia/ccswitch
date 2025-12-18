@@ -160,7 +160,7 @@ ccswitch add <配置文件名> [flags]
 
 此命令支持交互式或非交互式配置文件创建。没有标志时，会提示输入。
 
-### 从完整配置安装配置文件
+### 从预设配置安装配置文件
 
 ```bash
 ccswitch install [flags]
@@ -170,9 +170,9 @@ ccswitch install [flags]
 
 - `--force, -f`: 强制覆盖现有配置文件
 
-此命令提供了一种交互式方式来从完整配置（ccs-full.json）安装预配置的配置文件。它将：
+此命令提供了一种交互式方式来从预设配置（preset.json）安装预配置的配置文件。它将：
 
-1. 从 GitHub 下载完整配置到临时目录
+1. 从 GitHub 下载预设配置到临时目录
 2. 显示包含所有可用配置文件的交互式选择菜单
 3. 提示输入您的身份验证令牌（带掩码显示）
 4. 将选定的配置文件保存到本地配置
@@ -182,7 +182,7 @@ ccswitch install [flags]
 
 ```bash
 ccswitch install
-# Downloading full configuration from GitHub...
+# Downloading preset configuration from GitHub...
 # Select profile to install: (使用 ↑/↓ 移动，Enter 选择，q 取消)
 # > default
 #   anyrouter
@@ -452,7 +452,8 @@ ccswitch/
 │   └── httputil/          # HTTP 工具
 ├── config/                # 默认配置
 │   ├── ccs.json           # 基本配置文件
-│   └── ccs-full.json      # 完整配置文件
+│   ├── ccs-full.json      # 完整配置文件
+│   └── preset.json        # 预设配置文件（用于 install 命令）
 ├── install.sh             # 安装脚本
 ├── Makefile               # 构建自动化
 ├── main.go                # 应用程序入口点

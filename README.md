@@ -160,7 +160,7 @@ ccswitch add <profile-name> [flags]
 
 This command allows interactive or non-interactive profile creation. Without flags, it will prompt for input interactively.
 
-### Install a profile from full configuration
+### Install a profile from preset configuration
 
 ```bash
 ccswitch install [flags]
@@ -170,9 +170,9 @@ ccswitch install [flags]
 
 - `--force, -f`: Force overwrite existing profile
 
-This command provides an interactive way to install pre-configured profiles from the full configuration (ccs-full.json). It will:
+This command provides an interactive way to install pre-configured profiles from the preset configuration (preset.json). It will:
 
-1. Download the full configuration from GitHub to a temporary directory
+1. Download the preset configuration from GitHub to a temporary directory
 2. Present an interactive selection menu with all available profiles
 3. Prompt for your authentication token (with masked display)
 4. Save the selected profile to your local configuration
@@ -182,7 +182,7 @@ This command provides an interactive way to install pre-configured profiles from
 
 ```bash
 ccswitch install
-# Downloading full configuration from GitHub...
+# Downloading preset configuration from GitHub...
 # Select profile to install: (use ↑/↓, Enter to select, q to cancel)
 # > default
 #   anyrouter
@@ -452,7 +452,8 @@ ccswitch/
 │   └── httputil/          # HTTP utilities
 ├── config/                # Default configurations
 │   ├── ccs.json           # Basic profile configuration
-│   └── ccs-full.json      # Complete profile configuration
+│   ├── ccs-full.json      # Complete profile configuration
+│   └── preset.json        # Preset profile configuration for install command
 ├── install.sh             # Installation script
 ├── Makefile               # Build automation
 ├── main.go                # Application entry point

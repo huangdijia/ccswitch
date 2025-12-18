@@ -23,9 +23,9 @@ var (
 
 var installCmd = &cobra.Command{
 	Use:   "install",
-	Short: "Install a profile from the full configuration",
+	Short: "Install a profile from the preset configuration",
 	Long: `This command allows you to interactively select and install a profile from
-the full configuration (ccs-full.json). It will download the configuration,
+the preset configuration (preset.json). It will download the configuration,
 let you choose a profile, enter the authentication token, and save it to
 your local configuration.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -37,20 +37,20 @@ your local configuration.`,
 			return err
 		}
 
-		// Download ccs-full.json to temporary directory
+		// Download preset.json to temporary directory
 		tmpDir, err := os.MkdirTemp("", "ccswitch-install-*")
 		if err != nil {
 			return fmt.Errorf("failed to create temporary directory: %w", err)
 		}
 		defer os.RemoveAll(tmpDir) // Clean up temporary files
 
-		tmpConfigPath := filepath.Join(tmpDir, "ccs-full.json")
+		tmpConfigPath := filepath.Join(tmpDir, "preset.json")
 		
 		repo := "huangdijia/ccswitch"
 		branch := "main"
-		githubURL := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/config/ccs-full.json", repo, branch)
+		githubURL := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/config/preset.json", repo, branch)
 
-		fmt.Println("Downloading full configuration from GitHub...")
+		fmt.Println("Downloading preset configuration from GitHub...")
 		configContent, err := httputil.FetchBytes(githubURL)
 		if err != nil {
 			return fmt.Errorf("failed to download configuration from GitHub: %w", err)
