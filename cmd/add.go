@@ -26,8 +26,9 @@ var (
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add [profile-name]",
-	Short: "Add a new Claude API profile",
+	Use:     "add [profile-name]",
+	Aliases: []string{"install"},
+	Short:   "Add a new Claude API profile",
 	Long: `Add a new Claude API profile with custom configuration or install from preset profiles.
 
 Use --online flag to select from preset profiles available on GitHub.
