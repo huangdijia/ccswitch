@@ -147,43 +147,28 @@ This command initializes the CCSwitch configuration. It will:
 ### Add a new profile
 
 ```bash
-ccswitch add <profile-name> [flags]
+ccswitch add [profile-name] [flags]
 ```
 
 **Flags:**
 
-- `--api-key, -k`: Anthropic API key
-- `--base-url, -u`: Anthropic base URL (default: <https://api.anthropic.com>)
-- `--model, -m`: Anthropic model (default: opus)
-- `--description, -d`: Profile description
+- `--online, -o`: Install a profile from online preset configuration
+- `--api-key, -k`: Anthropic API key (for custom profiles)
+- `--base-url, -u`: Anthropic base URL (for custom profiles, default: <https://api.anthropic.com>)
+- `--model, -m`: Anthropic model (for custom profiles, default: opus)
+- `--description, -d`: Profile description (for custom profiles)
 - `--force, -f`: Force overwrite existing profile
 
-This command allows interactive or non-interactive profile creation. Without flags, it will prompt for input interactively.
+This command supports two modes:
 
-### Install a profile from preset configuration
-
-```bash
-ccswitch install [flags]
-```
-
-**Flags:**
-
-- `--force, -f`: Force overwrite existing profile
-
-This command provides an interactive way to install pre-configured profiles from the preset configuration (preset.json). It will:
-
-1. Download the preset configuration from GitHub to a temporary directory
-2. Present an interactive selection menu with all available profiles
-3. Prompt for your authentication token (with masked display)
-4. Save the selected profile to your local configuration
-5. Automatically clean up temporary files
-
-**Interactive workflow:**
+**1. Online preset profiles** (with `--online` flag):
 
 ```bash
+ccswitch add --online
+# or use the 'install' alias
 ccswitch install
 # Downloading preset configuration from GitHub...
-# Select profile to install: (use ↑/↓, Enter to select, q to cancel)
+# Select profile to add: (use ↑/↓, Enter to select, q to cancel)
 # > default
 #   anyrouter
 #   glm
@@ -191,10 +176,33 @@ ccswitch install
 #   kimi-kfc
 #   ...
 # Enter authentication token for profile 'glm': ****
-# ✓ Profile 'glm' installed successfully!
+# ✓ Profile 'glm' added successfully!
 ```
 
-This is the easiest way to quickly set up profiles from the extensive list of pre-configured API providers.
+Downloads the preset configuration from GitHub and lets you select from pre-configured profiles interactively.
+
+**2. Custom profile creation** (without `--online` flag):
+
+```bash
+ccswitch add myprofile --api-key "sk-..." --model "opus"
+# Or interactively without flags:
+ccswitch add myprofile
+# Enter ANTHROPIC_API_KEY (or press Enter to skip): 
+# Enter ANTHROPIC_BASE_URL [https://api.anthropic.com]: 
+# Enter ANTHROPIC_MODEL [opus]: 
+# Enter description (optional): 
+# ✓ Profile 'myprofile' added successfully!
+```
+
+Create custom profiles with your own configuration.
+
+### Install command (alias for `add --online`)
+
+```bash
+ccswitch install
+```
+
+This is a convenient alias for `ccswitch add --online`. It provides the same interactive preset profile installation experience.
 
 ### List available profiles
 

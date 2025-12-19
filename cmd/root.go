@@ -51,7 +51,25 @@ func init() {
 	rootCmd.AddCommand(useCmd)
 	rootCmd.AddCommand(resetCmd)
 	rootCmd.AddCommand(updateCmd)
-	rootCmd.AddCommand(installCmd)
+	
+	// Create install as an alias for "add --online"
+	installAliasCmd := &cobra.Command{
+		Use:   "install",
+		Short: "Install a profile from preset configuration (alias for 'add --online')",
+		Long: `Install a profile from the preset configuration (preset.json).
+This is an alias for 'ccswitch add --online'.
+
+It will download the preset configuration from GitHub, let you choose a profile
+interactively, prompt for your authentication token, and save it to your local configuration.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			// Set the online flag to true
+			addOnline = true
+			// Call the add command's RunE function
+			return addCmd.RunE(cmd, args)
+		},
+	}
+	installAliasCmd.Flags().BoolVarP(&addForce, "force", "f", false, "Force overwrite existing profile")
+	rootCmd.AddCommand(installAliasCmd)
 }
 
 // SetVersion sets the application version, commit and build date
