@@ -100,6 +100,9 @@ curl -sSL https://raw.githubusercontent.com/huangdijia/ccswitch/main/install.sh 
 # 初始化您的配置
 ccswitch init
 
+# 快速方式：交互式安装预配置的配置文件
+ccswitch install
+
 # 列出可用的配置文件
 ccswitch list
 # 或
@@ -144,18 +147,62 @@ ccswitch init
 ### 添加配置文件
 
 ```bash
-ccswitch add <配置文件名> [flags]
+ccswitch add [配置文件名] [flags]
 ```
 
 **标志：**
 
-- `--api-key, -k`: Anthropic API 密钥
-- `--base-url, -u`: Anthropic 基础 URL (默认: <https://api.anthropic.com>)
-- `--model, -m`: Anthropic 模型 (默认: opus)
-- `--description, -d`: 配置文件描述
+- `--online, -o`: 从在线预设配置安装配置文件
+- `--api-key, -k`: Anthropic API 密钥（用于自定义配置文件）
+- `--base-url, -u`: Anthropic 基础 URL（用于自定义配置文件，默认: <https://api.anthropic.com>)
+- `--model, -m`: Anthropic 模型（用于自定义配置文件，默认: opus）
+- `--description, -d`: 配置文件描述（用于自定义配置文件）
 - `--force, -f`: 强制覆盖现有配置文件
 
-此命令支持交互式或非交互式配置文件创建。没有标志时，会提示输入。
+此命令支持两种模式：
+
+**1. 在线预设配置文件**（使用 `--online` 标志）：
+
+```bash
+ccswitch add --online
+# 或使用 'install' 别名
+ccswitch install
+# Downloading preset configuration from GitHub...
+# Select profile to add: (使用 ↑/↓ 移动，Enter 选择，q 取消)
+# > default
+#   anyrouter
+#   glm
+#   deepseek
+#   kimi-kfc
+#   ...
+# Enter authentication token for profile 'glm': ****
+# ✓ Profile 'glm' added successfully!
+```
+
+从 GitHub 下载预设配置，让您以交互方式从预配置的配置文件中进行选择。
+
+**2. 自定义配置文件创建**（不使用 `--online` 标志）：
+
+```bash
+ccswitch add myprofile --api-key "sk-..." --model "opus"
+# 或者不使用标志交互式输入：
+ccswitch add myprofile
+# Enter ANTHROPIC_API_KEY (or press Enter to skip): 
+# Enter ANTHROPIC_BASE_URL [https://api.anthropic.com]: 
+# Enter ANTHROPIC_MODEL [opus]: 
+# Enter description (optional): 
+# ✓ Profile 'myprofile' added successfully!
+```
+
+使用您自己的配置创建自定义配置文件。
+
+### install 命令（`add --online` 的别名）
+
+```bash
+ccswitch install
+```
+
+这是 `ccswitch add --online` 的便捷别名。它提供相同的交互式预设配置文件安装体验。
 
 ### 列出可用的配置文件
 
@@ -413,7 +460,8 @@ ccswitch/
 │   └── httputil/          # HTTP 工具
 ├── config/                # 默认配置
 │   ├── ccs.json           # 基本配置文件
-│   └── ccs-full.json      # 完整配置文件
+│   ├── ccs-full.json      # 完整配置文件
+│   └── preset.json        # 预设配置文件（用于 install 命令）
 ├── install.sh             # 安装脚本
 ├── Makefile               # 构建自动化
 ├── main.go                # 应用程序入口点
