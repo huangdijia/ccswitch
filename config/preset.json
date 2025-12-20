@@ -74,13 +74,13 @@
         }
     },
     "descriptions": {
-        "anyrouter": "Use AnyRouter's Anthropic API",
-        "glm": "Use Zhipu's Anthropic API",
-        "deepseek": "Use DeepSeek's Anthropic API",
-        "kimi-k2": "Use K2's Anthropic API",
-        "kimi-kfc": "Use KFC's Anthropic API",
-        "minimaxi-m2": "Use MiniMax's Anthropic API",
-        "modelscope": "Use ModelScope's Anthropic API",
-        "xiaomi-mimo": "Use Xiaomi Mimo's Anthropic API"
+        "anyrouter": "AnyRouter's Anthropic API",
+        "glm": "Zhipu's Anthropic API",
+        "deepseek": "DeepSeek's Anthropic API",
+        "kimi-k2": "K2's Anthropic API",
+        "kimi-kfc": "KFC's Anthropic API",
+        "minimaxi-m2": "MiniMax's Anthropic API",
+        "modelscope": "ModelScope's Anthropic API",
+        "xiaomi-mimo": "Xiaomi Mimo's Anthropic API"
     }
 }
