@@ -271,7 +271,11 @@ When submitting PRs:
 
 ### API Key Management
 
-- **Never commit real API keys**: Use placeholders in examples and tests (e.g., `sk-...`, `****`)
+- **Never commit real API keys**: Use placeholders in examples and tests
+  - Standard format: `sk-...` (Anthropic, DeepSeek, AnyRouter, etc.)
+  - Kimi format: `sk-kimi-...`
+  - ModelScope format: `ms-...`
+  - Or use masked format: `****`
 - **Config File Security**: Configuration files contain API keys in plain text
   - Ensure proper file permissions (readable only by user)
   - Never commit config files to version control
