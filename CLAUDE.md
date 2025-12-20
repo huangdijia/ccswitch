@@ -85,7 +85,8 @@ ccswitch/
 │   ├── pathutil/          # Path utilities
 │   ├── httputil/          # HTTP utilities
 │   ├── output/            # Output formatting helpers
-│   └── cmdutil/           # Command utility functions
+│   ├── cmdutil/           # Command utility functions
+│   └── termui/            # Terminal UI utilities
 ├── config/                # Default/preset JSON files
 │   ├── ccs.json           # Basic configuration
 │   ├── ccs-full.json      # Complete configuration with all providers
@@ -225,8 +226,8 @@ go test -v ./cmd/... -run TestSpecificFunction
 
 ### Interactive Features
 
-- **Interactive Selection**: Commands like `use` provide keyboard-driven selection (↑/↓ and Enter) when run without arguments
-- **Terminal UI**: Uses `golang.org/x/term` for terminal utilities
+- **Interactive Selection**: The `use` command provides keyboard-driven selection (↑/↓ and Enter) when run without arguments
+- **Terminal UI**: Uses `golang.org/x/term` for terminal utilities and `internal/termui` for UI components
 - **User Feedback**: Masked sensitive values in output for security
 
 ## Commit & Pull Request Guidelines
@@ -456,6 +457,7 @@ make clean          # Clean artifacts
 - `internal/settings/`: Claude settings handling
 - `internal/pathutil/`: Path utilities
 - `internal/output/`: Output formatting
+- `internal/termui/`: Terminal UI utilities
 
 ---
 
