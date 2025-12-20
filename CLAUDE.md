@@ -1,164 +1,157 @@
-# CLAUDE.md
+“文档驱动开发（Doc-Driven Development）”：先锁定文档 →  拆 `taskNNN` → 实现与验证 → 回写文档。
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+---
 
-## Project Overview
+## 0. 原则（按优先级）
 
-ccswitch is a Go CLI tool for managing and switching between different Claude Code AI profiles and configurations. It allows users to:
+- 仓库既有规范 > 本文；冲突时按 `README`/`STYLEGUIDE` 等执行，并在 `issue_*`/`change_*` 记录取舍。
+- 文档为事实来源：需求、交互、接口只能来自 `spec/plan/tech-refer/adr`。
+- 单次仅处理一个原子任务；所有改动可追溯到 `taskNNN` 与其依据（`spec`/`issue`/`adr`）。
+- 每个 `taskNNN` 必须说明验证方式（测试或手动步骤）。
+- 实现完成必须回写：`task_*`、`change_*`，必要时更新 `spec_*`/`issue_*`/`adr_*`。
 
-- Switch between different Claude AI profiles/models
-- Manage Claude API configurations
-- Set environment variables for Claude Code
-- Maintain multiple profiles for different use cases
+---
 
-## Build and Development Commands
+## 1. 仓库结构与文档
 
-```bash
-# Build the main binary
-make build
-# or
-go build -o ccswitch ./cmd/ccswitch
+- 代码根：
+  - `cmd/`: CLI 命令实现（add、init、list、reset、show、update、use 等）
+  - `internal/`: 内部包（不对外暴露）
+    - `cmdutil/`: 命令工具函数
+    - `output/`: 输出格式化
+    - `pathutil/`: 路径工具
+    - `profiles/`: 配置文件管理
+    - `settings/`: Claude 设置管理
+    - `httputil/`: HTTP 工具
+    - `termui/`: 终端 UI 组件
+  - `config/`: 默认配置文件（preset.json）
+  - `main.go`: 程序入口点
+  - `Makefile`: 构建脚本
+  - `go.mod/go.sum`: Go 模块管理
+  - `install.sh`: 安装脚本
+- 文档：
+  - `README.md` / `README_CN.md`: 项目说明文档
+  - `AGENTS.md`: Agent 配置指南
+  - `GEMINI.md`: Gemini 模型配置指南
+  - `docs/`: 补充文档目录
+  - `CHANGELOG.md`: 版本变更记录
 
-# Run tests
-make test
-# or
-go test ./...
+---
 
-# Run tests with coverage
-make test-coverage
+## 2. Phase 工作流
 
-# Install the binary and config files
-make install
-# or
-go install ./cmd/ccswitch
+1. **Phase Gate**（仅当用户明确开启新阶段）：在新 `phase-*` 目录创建最小集 `spec_*`, `plan_*`, `task_*`, 视需求补 `tech-refer_*`/`adr_*`，`issue_*` 可后置。
+2. **In-Phase Loop**（默认）：  
+   - 新需求 → 更新当前 `plan_*` → 拆 `taskNNN`。  
+   - 实现 → 在 `task_*` 中新增/更新并执行对应任务。  
+   - Bug → 在 `.phrase/docs/ISSUES.md` 登记 `issueNNN`，在 phase 写详情，再拆 `taskNNN`。  
+   - 不可逆决策 → 先写 `adr_*` 或在 `tech-refer_*` 增 “Decision”。
+3. **Task 闭环**：完成后需  
+   1) 将 `task_*` 条目标记 `[x]`  
+   2) 在 phase `change_*` 记录条目，并于 `.phrase/docs/CHANGE.md` 加索引  
+   3) 若影响交互，更新对应 `spec_*`  
+   4) 若解决问题，更新 `ISSUES.md` 和 issue 详情（含验证结论）
 
-# Format code
-make fmt
-# or
-go fmt ./...
+当目标与当前 phase purpose 明显不同、需要独立里程碑或架构大重构时，可建议开启新 phase，但需用户确认。
 
-# Run go vet
-make vet
+### Phase 生命周期
 
-# Clean build artifacts
-make clean
+- 开启阶段：在 `.phrase/phases/phase-<purpose>-<date>/` 下创建 `spec/plan/task/...`。
+- 阶段完结：用户确认后，将整个目录重命名为 `DONE-phase-<purpose>-<date>/`，同时把主要文档也按规则改为 `DONE-PLAN-*`、`DONE-TASK-*` 等，确保一眼可见结项状态。
 
-# Download and tidy dependencies
-make mod
-```
+---
 
-## High-Level Architecture
+## 3. Task / Issue 规范
 
-The project follows a standard Go project layout with clean architecture principles:
+- `taskNNN` 为三位递增 ID（`task001` 起），不可重排或复用；拆分/合并需创建新 ID 并在原任务注明流向。
+- 任何对 `task_*` 的增删改/勾选都要在当前 phase `change_*` 记录一次，可批量合并但必须可追溯。
+- 原子任务标准：一次工作会话可完成、产出可观察、可独立验证，既不过细也不过粗。
+- Issue：
+  - 全局索引：`.phrase/docs/ISSUES.md` 用 `issueNNN [ ]/[x]` 并链接 phase 详情。
+  - 详情文件 `issue_<purpose>_<YYYYMMDD>.md` 需含环境、复现、调查、根因、修复、验证、关联的 `taskNNN`/提交。
+  - 用户可感知问题需在标记 `[x]` 前获得确认，并记录 `Resolved At/By/Commit`。
 
-```
-ccswitch/
-├── cmd/                    # CLI commands
-│   ├── ccswitch/          # Main entry point
-│   ├── init/              # Initialize configuration
-│   ├── list/              # List available profiles
-│   ├── set/               # Set specific profile
-│   ├── switch/            # Interactive profile switching
-│   └── use/               # Apply profile settings
-├── internal/              # Private application code
-│   ├── claude/            # Claude API client and settings
-│   ├── config/            # Configuration management
-│   ├── jsonutil/          # JSON utilities
-│   └── osutil/            # OS utilities
-└── docs/                  # Documentation and schemas
-```
+---
 
-### Key Components
+## 4. Build / Test / Dev
 
-1. **Commands (`cmd/`)**: Each subdirectory represents a CLI command implementing Cobra's Commander interface
-2. **Configuration (`internal/config/`)**:
-   - `Config`: Main configuration structure
-   - `ClaudeSettings`: Claude-specific settings with raw JSON support for extensibility
-   - Profile and environment variable management
-3. **Claude Integration (`internal/claude/`)**:
-   - `ClaudeSettings`: Core Claude configuration model
-   - `Write()` method persists settings to JSON file
-   - Supports model, API key, and custom settings
+- 构建命令：
+  - `make build`: 构建二进制文件
+  - `make install`: 构建并安装到系统
+  - `make clean`: 清理构建产物
+  - `make all`: 清理并重新构建
+- 测试命令：
+  - `make test`: 运行测试
+  - `make test-coverage`: 运行测试并生成覆盖率报告
+- 代码质量：
+  - `make fmt`: 使用 gofmt 格式化代码
+  - `make vet`: 运行 go vet 静态检查
+  - `make mod`: 下载并整理依赖
+- 开发命令：
+  - `go run .`: 直接运行程序
+  - `go build -o ccswitch .`: 构建（不使用 Makefile）
+  - 查看所有命令：`make help`
 
-## Key Patterns and Conventions
+---
 
-1. **Error Handling**: All functions return errors explicitly, use `fmt.Errorf` for error wrapping
-2. **JSON Handling**: Use `json.RawMessage` for extensible JSON fields in configurations
-3. **File Paths**: Configuration files stored in `~/.ccswitch/`
-4. **Environment Variables**: Claude settings exported as `CLAUDE_*` environment variables
-5. **Testing**: Each command package has corresponding `_test.go` files with unit tests
+## 5. 编码与验证
 
-## Configuration File Location
+- 语言版本：Go 1.25.4+
+- 代码风格：
+  - 使用 `gofmt` 自动格式化
+  - 遵循 Go 官方代码规范
+  - 包名小写，简短有意义
+  - 导出变量/函数使用 PascalCase
+  - 私有变量/函数使用 camelCase
+  - 使用 tab 缩进，行长度建议 ≤ 120 列
+- 错误处理：
+  - 显式处理所有错误
+  - 避免使用 `_` 忽略错误
+  - 提供有意义的错误上下文
+  - 使用 fmt.Errorf 或 errors.Wrap 包装错误
+- 测试要求：
+  - 单元测试文件命名：`xxx_test.go`
+  - 使用 table-driven tests 模式
+  - Mock 外部依赖（如 HTTP 调用）
+  - 测试覆盖率目标 > 80%
+  - 关键路径必须包含集成测试
+- 命令行规范：
+  - 使用 Cobra 框架
+  - 提供清晰的 --help 信息
+  - 支持子命令和标志参数
+  - 统一的错误输出格式
 
-The main configuration files are located at:
+---
 
-- Main config: `~/.ccswitch/ccs.json`
-- Claude settings: `~/.config/claude/settings.json`
+## 6. 文档更新与 Changelog
 
-## Important Implementation Details
+- `change_*`：phase 内的真实变更记录；每个完成的 `taskNNN` 至少一条，包含日期、文件/路径、Add|Modify|Delete、受影响函数、行为/风险说明，按时间倒序。
+- `.phrase/docs/CHANGE.md`：仅索引与摘要，指向对应 phase `change_*` 条目；可按工作会话批量更新。
+- `spec_*`/`plan_*`/`tech-refer_*`/`adr_*`/`issue_*` 均需随变更回写（增量即可），保持单一事实来源。
 
-1. **Profile Management**:
-   - Each profile has a name and associated Claude settings
-   - Profiles are stored in the main config file
-   - The `use` command applies a profile by writing Claude settings
+---
 
-2. **Claude Settings Structure**:
-   - Supports standard fields: `model`, `max_tokens`, `temperature`
-   - Extensible via `Raw` field for custom JSON properties
-   - Handles nested objects like `model_settings` and `tool_choice`
+## 7. 提交、PR 与安全
 
-3. **Interactive Features**:
-   - The `switch` command provides interactive profile selection
-   - Uses terminal UI for user-friendly profile switching
+- 默认使用 Conventional Commits（`feat:`, `fix:`, `docs:`, `test:`, `chore:` 等），一份提交聚焦单个 `taskNNN`。
+- PR 描述需列出关联的 `taskNNN`/`issueNNN`、动机、行为变化、验证方式、风险/回滚方案，并在 UI 变化时附截图/GIF。
+- 禁止提交密钥、token、证书、真实用户数据；涉及权限/配置的任务，需在 `spec_*` 和 `tech-refer_*` 清楚描述失败反馈、API 边界与排查方式。
 
-## Testing Guidelines
+---
 
-- Write unit tests for all command packages
-- Test error paths and edge cases
-- Use table-driven tests for multiple test cases
-- Mock external dependencies (file system, API calls) when necessary
-- Current test count: 8 test files
-- Use `make test-coverage` to generate coverage reports in `coverage.html`
+## 8. 模板速览
 
-## CI/CD
+- `spec`: Summary / Goals & Non-goals / User Flows（操作→反馈→回退）/ Edge Cases / Acceptance Criteria
+- `plan`: Milestones / Scope / Priorities / Risks & Dependencies /（可选）Rollback
+- `tech-refer`: Options / Proposed Approach / Interfaces & APIs / Trade-offs / Risks & Mitigations
+- `task`: `task001 [ ] 产出 + 验证方式 + 影响范围`
+- `issue`: `issueNNN [ ] Summary + Environment + Repro + Expected vs Actual + Investigation + Fix + Verification + User Confirmation + Resolved At/By/Commit`
+- `adr`: Context / Decision / Alternatives / Consequences / Rollback
 
-The project uses GitHub Actions for continuous integration:
+---
 
-- Tests run on every push and pull request with race detection
-- Coverage reports are generated automatically
-- Release workflow builds binaries for multiple platforms on version tags
+## 9. 协作表达提示
 
-## Development Workflow
-
-1. Create new commands in `cmd/` directory
-2. Implement Cobra command interface
-3. Add corresponding tests in `[command]_test.go`
-4. Update configuration structures if needed
-5. Test with `make test` before committing
-6. Format code with `make fmt`
-7. Run static analysis with `make vet`
-
-## Dependencies
-
-Main Go modules include:
-
-- github.com/spf13/cobra - CLI framework
-- github.com/spf13/viper - Configuration management
-- golang.org/x/term - Terminal utilities
-
-## Pre-configured Profiles
-
-The tool includes several pre-configured profiles for different Claude API providers:
-
-- **default**: Official Anthropic API
-- **anyrouter**: AnyRouter proxy service
-- **glm**: Zhipu AI's GLM models
-- **deepseek**: DeepSeek API
-- **kimi-kfc**: Kimi Coding API
-- **kimi-k2**: Kimi K2 API
-
-## CCSwitch Codebase Summary
-
-This is a Go-based CLI tool for managing Claude Code API profiles. It follows standard Go project structure with commands in `cmd/` and internal packages in `internal/`. The project uses Cobra for CLI framework, has comprehensive tests, and includes CI/CD via GitHub Actions.
-
-The main binary entry point is `./cmd/ccswitch/main.go` (not `main.go` in root).
+- 解释方案时优先描述用户操作（快捷键/鼠标/命令）、可见反馈、撤销/失败路径、边界情况。
+- 引用文档时用“文件名 + 小节”口语化说明，不逐字背诵。
+- 提供可选方案时说明它们属于当前还是后续里程碑，帮助用户决策。
