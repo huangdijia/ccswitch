@@ -14,11 +14,27 @@
 
 ## 1. 仓库结构与文档
 
-- 代码根：`App/`, `Core/`, `UI/`, `Shared/`, `Tests/`, `Assets/`, `Samples/`, `Schemas/`, `StackWM-Bridging-Header.h`。保持分层清晰，`Tests/` 镜像核心模块。
-- 文档根：`.phrase/`
-  - 阶段：`.phrase/phases/phase-<purpose>-<YYYYMMDD>/`
-  - 全局索引：`.phrase/docs/`
-- `Docs/` 为外部文档，可继续独立存放。
+- 代码根：
+  - `cmd/`: CLI 命令实现（add、init、list、reset、show、update、use 等）
+  - `internal/`: 内部包（不对外暴露）
+    - `cmdutil/`: 命令工具函数
+    - `output/`: 输出格式化
+    - `pathutil/`: 路径工具
+    - `profiles/`: 配置文件管理
+    - `settings/`: Claude 设置管理
+    - `httputil/`: HTTP 工具
+    - `termui/`: 终端 UI 组件
+  - `config/`: 默认配置文件（preset.json）
+  - `main.go`: 程序入口点
+  - `Makefile`: 构建脚本
+  - `go.mod/go.sum`: Go 模块管理
+  - `install.sh`: 安装脚本
+- 文档：
+  - `README.md` / `README_CN.md`: 项目说明文档
+  - `AGENTS.md`: Agent 配置指南
+  - `GEMINI.md`: Gemini 模型配置指南
+  - `docs/`: 补充文档目录
+  - `CHANGELOG.md`: 版本变更记录
 
 ---
 
@@ -59,18 +75,51 @@
 
 ## 4. Build / Test / Dev
 
-- 优先使用仓库提供的入口（Xcode scheme、SwiftPM、`Scripts/` 工具等）；无统一入口时可补最小脚本并在 `plan_*` 记录。
-- 构建：`swift build`（或 `swift build -c release`）。运行：`swift run StackWM`。测试：`swift test`（必要时加 `--enable-code-coverage`）。
-- 可选工具：`swiftformat .` → `swiftlint`（若可用且允许）。
+- 构建命令：
+  - `make build`: 构建二进制文件
+  - `make install`: 构建并安装到系统
+  - `make clean`: 清理构建产物
+  - `make all`: 清理并重新构建
+- 测试命令：
+  - `make test`: 运行测试
+  - `make test-coverage`: 运行测试并生成覆盖率报告
+- 代码质量：
+  - `make fmt`: 使用 gofmt 格式化代码
+  - `make vet`: 运行 go vet 静态检查
+  - `make mod`: 下载并整理依赖
+- 开发命令：
+  - `go run .`: 直接运行程序
+  - `go build -o ccswitch .`: 构建（不使用 Makefile）
+  - 查看所有命令：`make help`
 
 ---
 
 ## 5. 编码与验证
 
-- 风格：Swift 5.9+/macOS 13+；4-space 缩进，≤120 列；类型 PascalCase，函数/属性 lowerCamelCase，全局常量 UPPER_SNAKE_CASE。偏好值类型、不可变性，能 `final` 就 `final`。
-- 遵循现有错误处理、日志框架和模块边界；除非任务就是清理，否则禁止批量重排 import 或大范围格式化。
-- 关键路径加可诊断日志（遵循项目 logging 方案）。
-- 测试优先覆盖核心逻辑；UI/系统胶水可提供手动验证步骤。测试必须确定性，必要时注入依赖或 mock。
+- 语言版本：Go 1.25.4+
+- 代码风格：
+  - 使用 `gofmt` 自动格式化
+  - 遵循 Go 官方代码规范
+  - 包名小写，简短有意义
+  - 导出变量/函数使用 PascalCase
+  - 私有变量/函数使用 camelCase
+  - 使用 tab 缩进，行长度建议 ≤ 120 列
+- 错误处理：
+  - 显式处理所有错误
+  - 避免使用 `_` 忽略错误
+  - 提供有意义的错误上下文
+  - 使用 fmt.Errorf 或 errors.Wrap 包装错误
+- 测试要求：
+  - 单元测试文件命名：`xxx_test.go`
+  - 使用 table-driven tests 模式
+  - Mock 外部依赖（如 HTTP 调用）
+  - 测试覆盖率目标 > 80%
+  - 关键路径必须包含集成测试
+- 命令行规范：
+  - 使用 Cobra 框架
+  - 提供清晰的 --help 信息
+  - 支持子命令和标志参数
+  - 统一的错误输出格式
 
 ---
 
